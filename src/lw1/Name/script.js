@@ -13,20 +13,31 @@ const NAME = {
     RectWidth: 50,
 }
 
-function drawName(context) {
+const JUMP_DURATION = 1000
+
+const JUMP = {
+    Height: 150,
+    Duration: JUMP_DURATION,
+    Gravity: 9.8,
+    Phases: [0, JUMP_DURATION / 4, JUMP_DURATION / 2],
+}
+
+function drawName(context, time) {
     context.fillStyle = APP.Color
     context.fillRect(0, 0, APP.Width, APP.Height)
 
-    drawR(context, 0)
-    drawD(context, 1, -20)
-    drawO(context, 2)
+    drawR(context, 0, time);
+    drawD(context, 1, time, -20);
+    drawO(context, 2, time);
 }
 
-function drawR(context, index) {
+function drawR(context, index, time) {
+    const jumpOffset = calculateJumpOffset(time, JUMP.Phases[index]);
+
     const R = {
         Color: "black",
         X: getLetterX(index),
-        Y: NAME.Y,
+        Y: NAME.Y + jumpOffset,
         Width: NAME.LetterWidth,
         Height: NAME.LetterHeight,
     }
@@ -47,11 +58,13 @@ function drawR(context, index) {
     context.stroke()
 }
 
-function drawD(context, index, offset = 0) {
+function drawD(context, index, time, offset = 0) {
+    const jumpOffset = calculateJumpOffset(time, JUMP.Phases[index]);
+
     const D = {
         Color: "yellow",
         X: getLetterX(index) + offset,
-        Y: NAME.Y,
+        Y: NAME.Y + jumpOffset,
         Width: NAME.LetterWidth,
         Height: NAME.LetterHeight,
     }
@@ -63,11 +76,12 @@ function drawD(context, index, offset = 0) {
     drawRotatedRect(context, D.X + D.Width / 3, D.Y, NAME.RectWidth, D.Height, 60, D.Color)
 }
 
-function drawO(context, index) {
+function drawO(context, index, time) {
+    const jumpOffset = calculateJumpOffset(time, JUMP.Phases[index]);
     const O = {
         Color: "white",
         X: getLetterX(index),
-        Y: NAME.Y + NAME.RectWidth / 2,
+        Y: NAME.Y + NAME.RectWidth / 2 + jumpOffset,
         Width: NAME.LetterWidth,
         Height: NAME.LetterHeight - NAME.RectWidth,
     }
@@ -102,6 +116,35 @@ function drawRotatedRect(context, x, y, width, height, angle, color) {
     context.restore()
 }
 
+function calculateJumpOffset(baseTime, phaseOffset) {
+    const currentTime = baseTime + phaseOffset;
+    const cycleTime = currentTime % JUMP.Duration;
+
+    const jumpTime = JUMP.Duration * 0.5;
+
+    if (cycleTime >= jumpTime) {
+        return 0;
+    }
+
+    const t = cycleTime / 1000;
+    const totalJumpTimeInSeconds = jumpTime / 1000;
+
+    const timeToPeak = totalJumpTimeInSeconds / 2;
+    const g = (2 * JUMP.Height) / (timeToPeak * timeToPeak);
+
+    const v0 = g * timeToPeak;
+
+    if (t <= timeToPeak) {
+        const height = v0 * t - 0.5 * g * t * t;
+        return -height;
+    }
+    const fallTime = t - timeToPeak;
+    const height = JUMP.Height - 0.5 * g * fallTime * fallTime;
+    return height > 0
+        ? -height
+        : 0;
+}
+
 function initCanvas() {
     let canvas = document.createElement("canvas")
     canvas.width = APP.Width
@@ -111,6 +154,13 @@ function initCanvas() {
     return canvas.getContext("2d")
 }
 
+function app(now) {
+    context.clearRect(0, 0, APP.Width, APP.Height);
+    drawName(context, now - startTime);
+    requestAnimationFrame(app);
+}
+
 
 let context = initCanvas()
-drawName(context)
+let startTime = performance.now()
+app(startTime)
