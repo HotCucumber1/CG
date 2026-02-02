@@ -1,4 +1,0 @@
-interface ObserverInterface
-{
-    getX()
-}

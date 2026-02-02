@@ -20,7 +20,6 @@ class TrolleybusModel {
 
         this._width = 1000;
         this._height = 200;
-        this._r = 10;
         this._engineWidth = this._width / 4;
         this._engineHeight = this._height / 8;
     }
