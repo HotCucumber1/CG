@@ -3,7 +3,7 @@ const Direction = Object.freeze({
     Left: 'left',
 });
 
-class Trolleybus {
+class TrolleybusView {
     constructor(x, y, color, windowsCount, hornsSpace, direction) {
         this._x = x
         this._y = y
@@ -28,24 +28,20 @@ class Trolleybus {
         this._loader = new ImageLoader()
     }
 
-    getX()
-    {
+    getX() {
         return this._x
     }
 
-    setX(x)
-    {
+    setX(x) {
         this._x = x
         this._engineX = this._x + this._width / 2 - this._engineWidth / 2
     }
 
-    getWidth()
-    {
+    getWidth() {
         return this._width
     }
 
-    getHeight()
-    {
+    getHeight() {
         return this._height
     }
 
@@ -57,30 +53,23 @@ class Trolleybus {
         this._direction = direction
     }
 
-    getY()
-    {
+    getY() {
         return this._y
     }
 
-    setY(y)
-    {
+    setY(y) {
         this._y = y
         this._engineY = this._y - this._engineHeight
     }
 
-    getHornsTopY()
-    {
+    getHornsTopY() {
         return this._engineY - this._height / 2 - this._hornsSpace
     }
 
-    addWheelRotation(rotationAddition)
-    {
-        if (this._direction === Direction.Right)
-        {
+    addWheelRotation(rotationAddition) {
+        if (this._direction === Direction.Right) {
             this._wheelRotation += rotationAddition
-        }
-        else
-        {
+        } else {
             this._wheelRotation -= rotationAddition
         }
     }
