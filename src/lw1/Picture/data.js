@@ -9,9 +9,3 @@ const images = [
     './static/image/dmitriy.png',
     './static/image/kirill.png',
 ]
-
-const APP = {
-    Width: window.innerWidth,
-    Height: window.innerHeight,
-    Color: '#00bfff',
-}

@@ -1,0 +1,4 @@
+interface ObserverInterface
+{
+    getX()
+}
