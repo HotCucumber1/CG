@@ -1,12 +1,12 @@
 class TrolleybusView {
     constructor(model, color, windowsCount, hornsSpace, context) {
-        const spaceForWindows = this._model.width * 0.9
-        const spaceForWindowSpacing = this._model.width * 0.1
-
         this._model = model;
         this._color = color;
         this._windowsCount = windowsCount;
         this._hornsSpace = hornsSpace;
+
+        const spaceForWindows = this._model.width * 0.9
+        const spaceForWindowSpacing = this._model.width * 0.1
 
         this._windowHeight = this._model.height / 2;
         this._windowWidth = spaceForWindows / this._windowsCount;
