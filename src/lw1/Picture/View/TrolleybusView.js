@@ -1,15 +1,18 @@
 class TrolleybusView {
-    constructor(model, color, windowsCount, hornsSpace) {
+    constructor(model, color, windowsCount, hornsSpace, context) {
+        const spaceForWindows = this._model.width * 0.9
+        const spaceForWindowSpacing = this._model.width * 0.1
+
         this._model = model;
         this._color = color;
         this._windowsCount = windowsCount;
         this._hornsSpace = hornsSpace;
 
-        this._r = 10;
         this._windowHeight = this._model.height / 2;
-        this._windowWidth = this._model.width * 0.9 / this._windowsCount;
-        this._windowSpacing = this._model.width * 0.1 / this._windowsCount;
+        this._windowWidth = spaceForWindows / this._windowsCount;
+        this._windowSpacing = spaceForWindowSpacing / this._windowsCount;
 
+        this._context = context;
         this._imagePaths = [];
         this._advertImgSrc = null;
         this._loader = new ImageLoader();
@@ -25,45 +28,61 @@ class TrolleybusView {
         await this._loader.loadImage(image);
     }
 
-    draw(context) {
-        context.save();
+    draw() {
+        this._context.clearRect(0, 0, APP.Width, APP.Height);
+        this._context.save();
 
         if (this._model.direction === Direction.Right) {
-            context.translate(this._model.x + this._model.width, 0);
-            context.scale(-1, 1);
-            context.translate(-this._model.x, 0);
+            this._context.translate(this._model.x + this._model.width, 0);
+            this._context.scale(-1, 1);
+            this._context.translate(-this._model.x, 0);
         }
 
-        this._drawBody(context);
-        const windowStartPoint = this._drawWindows(context);
-        this._drawWheels(context);
-        this._drawEngine(context);
-        this._drawHorns(context);
-        this._drawPassengers(context, windowStartPoint);
-        this._drawAdvert(context);
+        this._drawBody();
+        const windowStartPoint = this._drawWindows();
+        this._drawWheels();
+        this._drawEngine();
+        this._drawHorns();
+        this._drawPassengers(windowStartPoint);
+        this._drawAdvert();
 
-        context.restore();
+        this._context.restore();
     }
 
-    _drawBody(context) {
-        context.fillStyle = this._color;
-        context.roundRect(
+    onMouseDown(callback) {
+        window.addEventListener('mousedown', callback);
+        document.body.style.cursor = 'grabbing';
+    }
+
+    onMouseUp(callback) {
+        window.addEventListener('mouseup', callback);
+        document.body.style.cursor = 'default';
+    }
+
+    onMouseMove(callback) {
+        window.addEventListener('mousemove', callback);
+    }
+
+    _drawBody() {
+        const roundRadius = 10
+        this._context.fillStyle = this._color;
+        this._context.roundRect(
             this._model.x,
             this._model.y,
             this._model.width,
             this._model.height,
-            this._r,
+            roundRadius,
         );
-        context.fill();
+        this._context.fill();
     }
 
-    _drawWindows(context) {
-        context.fillStyle = '#00bfff';
+    _drawWindows() {
+        this._context.fillStyle = '#00bfff';
         const startX = this._model.x + this._windowSpacing / 2;
         const startY = this._model.y + this._windowSpacing / 2;
 
         for (let i = 0; i < this._windowsCount; i++) {
-            context.fillRect(
+            this._context.fillRect(
                 startX + this._windowWidth * i + this._windowSpacing * i,
                 startY,
                 this._windowWidth,
@@ -74,21 +93,20 @@ class TrolleybusView {
         return {x: startX, y: startY};
     }
 
-    _drawWheels(context) {
+    _drawWheels() {
         const frontWheelX = this._model.x + this._model.width * 0.1;
         const backWheelX = this._model.x + this._model.width * 0.8;
 
-        this._drawWheel(context, frontWheelX, this._model.y + this._model.height);
-        this._drawWheel(context, backWheelX, this._model.y + this._model.height);
+        this._drawWheel(frontWheelX, this._model.y + this._model.height);
+        this._drawWheel(backWheelX, this._model.y + this._model.height);
     }
 
-    _drawWheel(context, x, y) {
+    _drawWheel(x, y) {
         const wheelColor = '#222222';
         const diskColor = '#656565';
         const wheelRadius = this._model.height / 4;
 
         this._drawEllipse(
-            context,
             x, y,
             wheelRadius,
             wheelRadius * 0.9,
@@ -96,7 +114,6 @@ class TrolleybusView {
             wheelColor,
         );
         this._drawEllipse(
-            context,
             x, y,
             wheelRadius * 0.6,
             wheelRadius * 0.6 * 0.9,
@@ -105,9 +122,9 @@ class TrolleybusView {
         );
     }
 
-    _drawEngine(context) {
-        context.fillStyle = '#222222';
-        context.fillRect(
+    _drawEngine() {
+        this._context.fillStyle = '#222222';
+        this._context.fillRect(
             this._model.engineX,
             this._model.engineY,
             this._model.engineWidth,
@@ -115,7 +132,7 @@ class TrolleybusView {
         );
     }
 
-    _drawHorns(context) {
+    _drawHorns() {
         const hornColor = '#222222';
 
         const frontHornXStart = this._model.engineX + this._model.engineWidth / 2 - this._hornsSpace / 2;
@@ -132,27 +149,25 @@ class TrolleybusView {
         };
 
         this._drawLine(
-            context,
             frontHornXStart,
             this._model.engineY,
             frontHornEnd.x,
             frontHornEnd.y,
             2, hornColor,
         );
-        this._drawCircle(context, frontHornEnd.x, frontHornEnd.y, 5, hornColor);
+        this._drawCircle(frontHornEnd.x, frontHornEnd.y, 5, hornColor);
 
         this._drawLine(
-            context,
             backHornXStart,
             this._model.engineY,
             backHornEnd.x,
             backHornEnd.y,
             2, hornColor,
         );
-        this._drawCircle(context, backHornEnd.x, backHornEnd.y, 5, hornColor);
+        this._drawCircle(backHornEnd.x, backHornEnd.y, 5, hornColor);
     }
 
-    _drawPassengers(context, windowStartPoint) {
+    _drawPassengers(windowStartPoint) {
         const k = 0.8;
         this._imagePaths.forEach((imagePath, i) => {
             const image = this._loader.getImage(imagePath);
@@ -170,7 +185,7 @@ class TrolleybusView {
             const y = windowStartPoint.y + (this._windowHeight - targetHeight);
             const x = windowStartPoint.x + (this._windowWidth - targetWidth);
 
-            context.drawImage(
+            this._context.drawImage(
                 image,
                 x + i * this._windowWidth + i * this._windowSpacing,
                 y,
@@ -180,15 +195,17 @@ class TrolleybusView {
         });
     }
 
-    _drawAdvert(context) {
-        if (this._advertImgSrc === null) return;
+    _drawAdvert() {
+        if (this._advertImgSrc === null) {
+            return;
+        }
 
         const image = this._loader.getImage(this._advertImgSrc);
         const targetHeight = this._model.height - this._windowHeight - this._windowSpacing / 2;
         const scale = targetHeight / image.height;
         const targetWidth = image.width * scale;
 
-        context.drawImage(
+        this._context.drawImage(
             image,
             this._model.x + this._model.width / 2 - targetWidth / 2,
             this._model.y + this._windowHeight + this._windowSpacing / 2,
@@ -197,27 +214,27 @@ class TrolleybusView {
         );
     }
 
-    _drawCircle(context, x, y, r, color) {
-        context.fillStyle = color;
-        context.beginPath();
-        context.arc(x, y, r, 0, 2 * Math.PI);
-        context.fill();
+    _drawCircle(x, y, r, color) {
+        this._context.fillStyle = color;
+        this._context.beginPath();
+        this._context.arc(x, y, r, 0, 2 * Math.PI);
+        this._context.fill();
     }
 
-    _drawEllipse(context, x, y, rx, ry, rotation, color) {
-        context.fillStyle = color;
-        context.beginPath();
-        context.ellipse(x, y, rx, ry, rotation, 0, 2 * Math.PI);
-        context.fill();
+    _drawEllipse(x, y, rx, ry, rotation, color) {
+        this._context.fillStyle = color;
+        this._context.beginPath();
+        this._context.ellipse(x, y, rx, ry, rotation, 0, 2 * Math.PI);
+        this._context.fill();
     }
 
-    _drawLine(context, startX, startY, endX, endY, width, color) {
-        context.strokeStyle = color;
-        context.lineWidth = width;
-        context.beginPath();
-        context.moveTo(startX, startY);
-        context.lineTo(endX, endY);
-        context.closePath();
-        context.stroke();
+    _drawLine(startX, startY, endX, endY, width, color) {
+        this._context.strokeStyle = color;
+        this._context.lineWidth = width;
+        this._context.beginPath();
+        this._context.moveTo(startX, startY);
+        this._context.lineTo(endX, endY);
+        this._context.closePath();
+        this._context.stroke();
     }
 }

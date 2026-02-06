@@ -16,7 +16,6 @@ class TrolleybusModel {
         this._xSpeed = -5;
         this._wheelRotation = Math.PI / 2;
         this._currentLine = Line.Top;
-        this._isDragging = false;
 
         this._width = 1000;
         this._height = 200;
@@ -64,14 +63,6 @@ class TrolleybusModel {
         this._currentLine = value;
     }
 
-    get isDragging() {
-        return this._isDragging;
-    }
-
-    set isDragging(value) {
-        this._isDragging = value;
-    }
-
     get width() {
         return this._width;
     }
@@ -88,9 +79,7 @@ class TrolleybusModel {
         return this._engineHeight;
     }
 
-    move(needUpdate) {
-        if (!needUpdate) return;
-
+    move() {
         this._x += this._xSpeed;
 
         if (this._x + this._width < 0 || this._x > APP.Width) {
@@ -111,13 +100,6 @@ class TrolleybusModel {
 
     get engineY() {
         return this._y - this._engineHeight;
-    }
-
-    isPointInside(pointX, pointY) {
-        return pointX >= this._x &&
-            pointX <= this._x + this._width &&
-            pointY >= this._y &&
-            pointY <= this._y + this._height;
     }
 
     getHornsTopY(hornsSpace) {

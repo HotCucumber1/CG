@@ -1,75 +1,61 @@
 class TrolleybusController {
-    constructor(model, view) {
+    constructor(model, view, lines) {
         this._model = model;
         this._view = view;
         this._frameCount = 0;
         this._WHEEL_ROTATION_INTERVAL = 10;
         this._lastMousePos = null;
-        this._lines = [];
+        this._lines = lines;
+        this._isDragging = false;
 
-        this._init();
+        this._initEventListeners();
     }
 
     update() {
         this._frameCount++;
         this._updateWheelRotation();
-        this._model.move(!this._model.isDragging);
+        if (!this._isDragging) {
+            this._model.move();
+        }
     }
 
     render() {
-        this._context.clearRect(0, 0, APP.Width, APP.Height);
-        this._lines.forEach(line => {
-            line.draw(this._context)
-        });
-        this._view.draw(this._context);
+        this._view.draw();
+        this._lines.forEach(line => line.draw());
     }
 
     async start() {
         await this._view.uploadPassengersImages(images);
         await this._view.uploadAdvertImage('./static/image/A_Serova.jpg');
-        this._gameLoop();
+        this._mainLoop();
     }
 
-    _init() {
-        this._initCanvas();
-        this._initEventListeners();
-        this._initLines();
-    }
-
-    _initCanvas() {
-        let canvas = document.createElement("canvas");
-        canvas.width = APP.Width;
-        canvas.height = APP.Height;
-        document.body.appendChild(canvas);
-        this._context = canvas.getContext("2d");
-    }
-
-    _initLines() {
-        const upperLines = 10;
-        const bottomLines = 500;
-        const spacing = 25;
-
-        this._lines.push(new Lines(upperLines, spacing, APP.Width));
-        this._lines.push(new Lines(bottomLines, spacing, APP.Width));
-    }
-
+    // TODO Вынести во View работу с DOM
     _initEventListeners() {
-        window.addEventListener('mousedown', (event) => this._handleMouseDown(event));
-        window.addEventListener('mouseup', () => this._handleMouseUp());
-        window.addEventListener('mousemove', (event) => this._handleMouseMove(event));
+        this._view.onMouseDown((event) => this._handleMouseDown(event));
+        this._view.onMouseUp(() => this._handleMouseUp());
+        this._view.onMouseMove((event) => this._handleMouseMove(event))
     }
 
     _handleMouseDown(event) {
-        if (!this._model.isPointInside(event.clientX, event.clientY)) {
+        if (!this._isPointInsideTrolleybus(event.clientX, event.clientY)) {
             return;
         }
 
-        this._model.isDragging = true;
+        this._isDragging = true;
+    }
+
+    // TODO вынести в контроллер из модели
+    _isPointInsideTrolleybus(x, y) {
+        return x >= this._model.x &&
+            x <= this._model.x + this._model.width &&
+            y >= this._model.y &&
+            y <= this._model.y + this._model.height;
     }
 
     _handleMouseUp() {
         this._lastMousePos = null;
-        this._model.isDragging = false;
+        this._isDragging = false;
 
         const upperLinesY = 10;
         const bottomLinesY = 500;
@@ -86,10 +72,15 @@ class TrolleybusController {
     }
 
     _handleMouseMove(event) {
-        if (!this._model.isDragging) return;
+        if (!this._isDragging) {
+            return;
+        }
 
         if (this._lastMousePos === null) {
-            this._lastMousePos = {x: event.clientX, y: event.clientY};
+            this._lastMousePos = {
+                x: event.clientX,
+                y: event.clientY,
+            };
         }
 
         const offsetX = event.clientX - this._lastMousePos.x;
@@ -103,6 +94,9 @@ class TrolleybusController {
     }
 
     _updateWheelRotation() {
+        if (this._isDragging) {
+            return
+        }
         if (this._frameCount % this._WHEEL_ROTATION_INTERVAL === 0) {
             if (this._model.direction === Direction.Right) {
                 this._model.wheelRotation += Math.PI / 2;
@@ -116,9 +110,9 @@ class TrolleybusController {
         }
     }
 
-    _gameLoop() {
+    _mainLoop() {
         this.update();
         this.render();
-        requestAnimationFrame(() => this._gameLoop());
+        requestAnimationFrame(() => this._mainLoop());
     }
 }

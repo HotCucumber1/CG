@@ -1,30 +1,26 @@
 class Lines {
-    constructor(y, space, width) {
+    constructor(y, space, width, context) {
         this._y = y
         this._width = width
         this._space = space
+        this._context = context
     }
 
-    getY()
-    {
-        return this._y
-    }
-
-    draw(context) {
+    draw() {
         const color = 'black'
 
-        this._drawLine(context, 0, this._y, this._width, this._y, 2, color)
-        this._drawLine(context, 0, this._y + this._space, this._width, this._y + this._space, 2, color)
+        this._drawLine(0, this._y, this._width, this._y, 2, color)
+        this._drawLine(0, this._y + this._space, this._width, this._y + this._space, 2, color)
     }
 
-    _drawLine(context, startX, startY, endX, endY, width, color) {
-        context.strokeStyle = color
-        context.lineWidth = width
+    _drawLine(startX, startY, endX, endY, width, color) {
+        this._context.strokeStyle = color
+        this._context.lineWidth = width
 
-        context.beginPath()
-        context.moveTo(startX, startY)
-        context.lineTo(endX, endY)
-        context.closePath()
-        context.stroke()
+        this._context.beginPath()
+        this._context.moveTo(startX, startY)
+        this._context.lineTo(endX, endY)
+        this._context.closePath()
+        this._context.stroke()
     }
 }
