@@ -8,4 +8,5 @@ const images = [
     './static/image/mikhail_kugelev.png',
     './static/image/dmitriy.png',
     './static/image/kirill.png',
+    './static/image/alexander_apakaev.jpg',
 ]
