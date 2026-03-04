@@ -37,7 +37,7 @@ class LettersView {
 
             const letterViewInfo = this._lettersView.get(letter)
             this._context.fillStyle = color
-            this._context.fillText(letter, letterViewInfo.x, letterViewInfo.y, letterViewInfo.x)
+            this._context.fillText(letter, letterViewInfo._x, letterViewInfo._y, letterViewInfo._x)
         })
     }
 
@@ -62,8 +62,8 @@ class LettersView {
 
         this._letters.keys().forEach((letter, index) => {
             this._lettersView.set(letter, {
-                x: startX + this._size * index,
-                y: y,
+                _x: startX + this._size * index,
+                _y: y,
                 width: this._size,
                 height: this._size,
             })

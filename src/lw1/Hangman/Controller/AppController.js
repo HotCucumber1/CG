@@ -83,8 +83,8 @@ class AppController {
     _tryGetClickedLetter(x, y) {
         let clickedLetter = null
         this._lettersData.forEach((data, letter) => {
-            if (data.x <= x && x <= data.x + data.width &&
-                data.y <= y && y <= data.y + data.height
+            if (data._x <= x && x <= data._x + data.width &&
+                data._y <= y && y <= data._y + data.height
             ) {
                 clickedLetter = letter
             }
@@ -99,8 +99,8 @@ class AppController {
 
         letters.keys().forEach((letter, index) => {
             this._lettersData.set(letter, {
-                x: startX + this._size * index,
-                y: y - this._size,
+                _x: startX + this._size * index,
+                _y: y - this._size,
                 width: this._size,
                 height: this._size,
             })

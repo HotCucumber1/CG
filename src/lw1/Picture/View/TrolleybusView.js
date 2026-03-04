@@ -33,9 +33,9 @@ class TrolleybusView {
         this._context.save();
 
         if (this._model.direction === Direction.Right) {
-            this._context.translate(this._model.x + this._model.width, 0);
+            this._context.translate(this._model._x + this._model.width, 0);
             this._context.scale(-1, 1);
-            this._context.translate(-this._model.x, 0);
+            this._context.translate(-this._model._x, 0);
         }
 
         this._drawBody();
@@ -67,8 +67,8 @@ class TrolleybusView {
         const roundRadius = 10
         this._context.fillStyle = this._color;
         this._context.roundRect(
-            this._model.x,
-            this._model.y,
+            this._model._x,
+            this._model._y,
             this._model.width,
             this._model.height,
             roundRadius,
@@ -78,8 +78,8 @@ class TrolleybusView {
 
     _drawWindows() {
         this._context.fillStyle = '#00bfff';
-        const startX = this._model.x + this._windowSpacing / 2;
-        const startY = this._model.y + this._windowSpacing / 2;
+        const startX = this._model._x + this._windowSpacing / 2;
+        const startY = this._model._y + this._windowSpacing / 2;
 
         for (let i = 0; i < this._windowsCount; i++) {
             this._context.fillRect(
@@ -90,15 +90,15 @@ class TrolleybusView {
             );
         }
 
-        return {x: startX, y: startY};
+        return {_x: startX, _y: startY};
     }
 
     _drawWheels() {
-        const frontWheelX = this._model.x + this._model.width * 0.1;
-        const backWheelX = this._model.x + this._model.width * 0.8;
+        const frontWheelX = this._model._x + this._model.width * 0.1;
+        const backWheelX = this._model._x + this._model.width * 0.8;
 
-        this._drawWheel(frontWheelX, this._model.y + this._model.height);
-        this._drawWheel(backWheelX, this._model.y + this._model.height);
+        this._drawWheel(frontWheelX, this._model._y + this._model.height);
+        this._drawWheel(backWheelX, this._model._y + this._model.height);
     }
 
     _drawWheel(x, y) {
@@ -182,8 +182,8 @@ class TrolleybusView {
             }
 
             const targetWidth = image.width * scale;
-            const y = windowStartPoint.y + (this._windowHeight - targetHeight);
-            const x = windowStartPoint.x + (this._windowWidth - targetWidth);
+            const y = windowStartPoint._y + (this._windowHeight - targetHeight);
+            const x = windowStartPoint._x + (this._windowWidth - targetWidth);
 
             this._context.drawImage(
                 image,
@@ -207,8 +207,8 @@ class TrolleybusView {
 
         this._context.drawImage(
             image,
-            this._model.x + this._model.width / 2 - targetWidth / 2,
-            this._model.y + this._windowHeight + this._windowSpacing / 2,
+            this._model._x + this._model.width / 2 - targetWidth / 2,
+            this._model._y + this._windowHeight + this._windowSpacing / 2,
             targetWidth,
             targetHeight
         );

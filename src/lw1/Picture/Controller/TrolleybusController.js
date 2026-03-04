@@ -47,10 +47,10 @@ class TrolleybusController {
 
     // TODO вынести в контроллер из модели
     _isPointInsideTrolleybus(x, y) {
-        return x >= this._model.x &&
-            x <= this._model.x + this._model.width &&
-            y >= this._model.y &&
-            y <= this._model.y + this._model.height;
+        return x >= this._model._x &&
+            x <= this._model._x + this._model.width &&
+            y >= this._model._y &&
+            y <= this._model._y + this._model.height;
     }
 
     _handleMouseUp() {
@@ -63,10 +63,10 @@ class TrolleybusController {
         const hornsTopY = this._model.getHornsTopY(25);
 
         if (Math.abs(hornsTopY - upperLinesY) < Math.abs(hornsTopY - bottomLinesY)) {
-            this._model.y = upperLinesY + 150;
+            this._model._y = upperLinesY + 150;
             this._model.currentLine = Line.Top;
         } else {
-            this._model.y = bottomLinesY + 150;
+            this._model._y = bottomLinesY + 150;
             this._model.currentLine = Line.Bottom;
         }
     }
