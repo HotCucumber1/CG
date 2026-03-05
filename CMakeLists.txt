@@ -4,6 +4,7 @@ project(CG)
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(OpenGL REQUIRED)
+find_package(OpenAL REQUIRED)
 find_package(glfw3 REQUIRED)
 
 include(FetchContent)
@@ -16,3 +17,4 @@ FetchContent_MakeAvailable(Catch2)
 
 
 add_subdirectory(src/lw3/Example)
+add_subdirectory(src/lw3/Asteroids)

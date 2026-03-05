@@ -26,6 +26,8 @@ private:
 
 	virtual void OnRefresh();
 
+	virtual void OnKeyClick(int key, int scancode, int action, int mods);
+
 	virtual void OnCursorPos([[maybe_unused]] double x, [[maybe_unused]] double y);
 
 	static GLFWWindowPtr CreateWindow(int w, int h, const char* title);
@@ -34,8 +36,10 @@ private:
 
 	static void RefreshCallback(GLFWwindow* window);
 
+	static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
 	static void CursorPosCallback(GLFWwindow* window, double x, double y);
 
-private:
+protected:
 	GLFWWindowPtr m_window;
 };

@@ -15,6 +15,7 @@ BaseWindow::BaseWindow(
 	glfwSetWindowUserPointer(m_window.get(), this);
 	glfwSetWindowRefreshCallback(m_window.get(), &BaseWindow::RefreshCallback);
 	glfwSetCursorPosCallback(m_window.get(), &BaseWindow::CursorPosCallback);
+	glfwSetKeyCallback(m_window.get(), &BaseWindow::KeyCallback);;
 }
 
 void BaseWindow::Run()
@@ -36,6 +37,10 @@ void BaseWindow::OnRefresh()
 {
 }
 
+void BaseWindow::OnKeyClick(int key, int scancode, int action, int mods)
+{
+}
+
 void BaseWindow::OnCursorPos(double x, double y)
 {
 }
@@ -50,6 +55,19 @@ void BaseWindow::RefreshCallback(GLFWwindow* window)
 	if (const auto instance = GetInstance(window))
 	{
 		instance->OnRefresh();
+	}
+}
+
+void BaseWindow::KeyCallback(
+	GLFWwindow* window,
+	const int key,
+	const int scancode,
+	const int action,
+	const int mods)
+{
+	if (const auto instance = GetInstance(window))
+	{
+		instance->OnKeyClick(key, scancode, action, mods);
 	}
 }
 
