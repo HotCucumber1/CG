@@ -94,7 +94,7 @@ void Asteroid::GenerateShape()
 	// TODO порефакторить
 	m_localPoints.clear();
 
-	const int numPoints = 8 + RandomInt(0, 7);
+	const int numPoints = 8 + GetRandomInt(0, 7);
 
 	std::vector<double> angles;
 	const double angleStep = 2.0 * M_PI / numPoints;
@@ -102,7 +102,7 @@ void Asteroid::GenerateShape()
 	for (int i = 0; i < numPoints; i++)
 	{
 		const double baseAngle = i * angleStep;
-		const double randomOffset = (RandomDouble(-1.0, 1.0)) * (M_PI / 12.0);
+		const double randomOffset = (GetRandomDouble(-1.0, 1.0)) * (M_PI / 12.0);
 		angles.push_back(baseAngle + randomOffset);
 	}
 
@@ -110,7 +110,7 @@ void Asteroid::GenerateShape()
 
 	for (const double angle : angles)
 	{
-		const double radius = m_baseSize * RandomDouble(0.7, 1.3);
+		const double radius = m_baseSize * GetRandomDouble(0.7, 1.3);
 
 		const double localX = radius * cos(angle);
 		const double localY = radius * sin(angle);

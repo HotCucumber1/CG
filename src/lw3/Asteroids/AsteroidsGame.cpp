@@ -14,7 +14,8 @@ constexpr int SHIP_HEIGHT = 40;
 constexpr int SHIP_WIDTH = 50;
 constexpr double FRICTION = 0.004;
 constexpr double ACCELERATION = 0.001;
-constexpr size_t START_ASTEROIDS_AMOUNT = 5;
+constexpr size_t START_ASTEROIDS_AMOUNT = 4;
+constexpr size_t STARS_AMOUNT = 50;
 
 void SetDefaultOrtho(int width, int height);
 double DegreeToRad(double angle);
@@ -36,6 +37,7 @@ AsteroidsGame::AsteroidsGame(
 
 	m_lastTime = glfwGetTime();
 	GenerateAsteroids(START_ASTEROIDS_AMOUNT);
+	GenerateStars(STARS_AMOUNT);
 }
 
 void AsteroidsGame::Draw(const int width, const int height)
@@ -48,6 +50,7 @@ void AsteroidsGame::Draw(const int width, const int height)
 
 	SetDefaultOrtho(width, height);
 
+	DrawStars();
 	glPushMatrix();
 	glLoadIdentity();
 
@@ -106,39 +109,62 @@ void AsteroidsGame::DrawShip() const
 	{
 		return;
 	}
+	DrawWings();
+
 	glBegin(GL_TRIANGLES);
-	glColor3f(1, 1, 1);
+	glColor3f(1, 0, 0);
 	glVertex2d(m_position.x + SHIP_WIDTH / 2, m_position.y);
+
+	glColor3f(0.5, 0.5, 0.5);
 	glVertex2d(m_position.x - SHIP_WIDTH / 2, m_position.y - SHIP_HEIGHT / 2);
+
+	glColor3f(0.5, 0.5, 0.5);
 	glVertex2d(m_position.x - SHIP_WIDTH / 2, m_position.y + SHIP_HEIGHT / 2);
 	glEnd();
 
 	if (m_moveForward)
 	{
-		const double time = glfwGetTime();
-		const double flicker = 0.8 + 0.2 * sin(time * 20); // TODO
-		const double flameLength = 30 * flicker;
-
-		glBegin(GL_TRIANGLES);
-
-		glColor3f(1, 0.5, 0);
-		glVertex2d(m_position.x - SHIP_WIDTH / 2 - flameLength, m_position.y);
-		glVertex2d(m_position.x - SHIP_WIDTH / 2, m_position.y - SHIP_HEIGHT / 2);
-		glVertex2d(m_position.x - SHIP_WIDTH / 2, m_position.y + SHIP_HEIGHT / 2);
-
-		glColor3f(1, 0.8, 0);
-		glVertex2d(m_position.x - SHIP_WIDTH / 2 - flameLength * 0.7, m_position.y);
-		glVertex2d(m_position.x - SHIP_WIDTH / 2, m_position.y - SHIP_HEIGHT / 4);
-		glVertex2d(m_position.x - SHIP_WIDTH / 2, m_position.y + SHIP_HEIGHT / 4);
-
-		glEnd();
+		DrawFire();
 	}
+}
+void AsteroidsGame::DrawWings() const
+{
+	glBegin(GL_LINES);
+	glColor3f(0.6, 0.6, 0.6);
+
+	glVertex2d(m_position.x - SHIP_WIDTH / 3, m_position.y - SHIP_HEIGHT / 3);
+	glVertex2d(m_position.x - SHIP_WIDTH / 1.5, m_position.y - SHIP_HEIGHT / 1.5);
+
+	glVertex2d(m_position.x - SHIP_WIDTH / 3, m_position.y + SHIP_HEIGHT / 3);
+	glVertex2d(m_position.x - SHIP_WIDTH / 1.5, m_position.y + SHIP_HEIGHT / 1.5);
+	glEnd();
+}
+
+void AsteroidsGame::DrawFire() const
+{
+	const double time = glfwGetTime();
+	const double flicker = 0.8 + 0.2 * sin(time * 20); // TODO
+	const double flameLength = 30 * flicker;
+
+	glBegin(GL_TRIANGLES);
+
+	glColor3f(1, 0.5, 0);
+	glVertex2d(m_position.x - SHIP_WIDTH / 2 - flameLength, m_position.y);
+	glVertex2d(m_position.x - SHIP_WIDTH / 2, m_position.y - SHIP_HEIGHT / 2);
+	glVertex2d(m_position.x - SHIP_WIDTH / 2, m_position.y + SHIP_HEIGHT / 2);
+
+	glColor3f(1, 0.8, 0);
+	glVertex2d(m_position.x - SHIP_WIDTH / 2 - flameLength * 0.7, m_position.y);
+	glVertex2d(m_position.x - SHIP_WIDTH / 2, m_position.y - SHIP_HEIGHT / 4);
+	glVertex2d(m_position.x - SHIP_WIDTH / 2, m_position.y + SHIP_HEIGHT / 4);
+
+	glEnd();
 }
 
 void AsteroidsGame::DrawBullets() const
 {
 	glPointSize(Bullet::SIZE);
-	glColor3f(1, 1, 1);
+	glColor3f(1, 0, 0);
 
 	for (const auto& bullet : m_bullets)
 	{
@@ -150,7 +176,6 @@ void AsteroidsGame::DrawBullets() const
 
 void AsteroidsGame::DrawAsteroids() const
 {
-	glColor3f(1, 1, 1);
 	for (const auto& asteroid : m_asteroids)
 	{
 		glPushMatrix();
@@ -158,6 +183,16 @@ void AsteroidsGame::DrawAsteroids() const
 			asteroid.GetPosition().x,
 			asteroid.GetPosition().y,
 			0);
+		glColor3f(0.5, 0.5, 0.5);
+		glBegin(GL_POLYGON);
+		for (const auto& point : asteroid.GetLocalPoints())
+		{
+			glVertex2d(point.x, point.y);
+		}
+		glEnd();
+
+		glLineWidth(2.);
+		glColor3f(0.3, 0.3, 0.3);
 		glBegin(GL_LINE_LOOP);
 		for (const auto& point : asteroid.GetLocalPoints())
 		{
@@ -178,12 +213,28 @@ void AsteroidsGame::DrawHealth() const
 	for (int i = 0; i < m_health; i++)
 	{
 		glBegin(GL_TRIANGLES);
-		glColor3f(1, 1, 1);
+		glColor3f(1, 0, 0);
 		glVertex2d(startX + spaceBetween * i + SHIP_HEIGHT / 2, startY);
+		glColor3f(0.5, 0.5, 0.5);
 		glVertex2d(startX + spaceBetween * i + SHIP_HEIGHT, startY - SHIP_WIDTH);
+		glColor3f(0.5, 0.5, 0.5);
 		glVertex2d(startX + spaceBetween * i, startY - SHIP_WIDTH);
 		glEnd();
 	}
+}
+
+void AsteroidsGame::DrawStars() const
+{
+	constexpr double blue = 0.3;
+	glPointSize(2);
+	glBegin(GL_POINTS);
+
+	for (const auto& star : m_stars)
+	{
+		glColor3f(star.brightness, star.brightness, blue);
+		glVertex2d(star.pos.x, star.pos.y);
+	}
+	glEnd();
 }
 
 void AsteroidsGame::UpdateShip()
@@ -353,6 +404,20 @@ void AsteroidsGame::Respawn()
 	m_speed.y = 0;
 	m_rotationAngle = 90;
 	m_isAlive = true;
+}
+
+void AsteroidsGame::GenerateStars(const int count)
+{
+	m_stars.clear();
+	m_stars.reserve(count);
+
+	for (int _ = 0; _ < count; _++)
+	{
+		Star star{};
+		star.pos = GetRandomPoint(m_width, m_height);
+		star.brightness = GetRandomDouble(0.2, 1);
+		m_stars.push_back(star);
+	}
 }
 
 void AsteroidsGame::OnKeyClick(

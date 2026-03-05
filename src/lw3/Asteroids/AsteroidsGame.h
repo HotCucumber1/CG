@@ -16,15 +16,27 @@ public:
 		const std::string& title);
 
 private:
+	struct Star
+	{
+		Point pos;
+		double brightness;
+	};
+
 	void Draw(int width, int height) override;
 
 	void DrawShip() const;
+
+	void DrawWings() const;
+
+	void DrawFire() const;
 
 	void DrawBullets() const;
 
 	void DrawAsteroids() const;
 
 	void DrawHealth() const;
+
+	void DrawStars() const;
 
 	void Update();
 
@@ -45,6 +57,8 @@ private:
 	void CreateAsteroid();
 
 	void Respawn();
+
+	void GenerateStars(int count);
 
 	void OnKeyClick(int key, int scancode, int action, int mods) override;
 
@@ -67,6 +81,7 @@ private:
 	Point m_position;
 	Vector m_speed;
 
+	std::vector<Star> m_stars;
 	std::deque<Bullet> m_bullets;
 	std::vector<Asteroid> m_asteroids;
 

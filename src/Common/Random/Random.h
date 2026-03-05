@@ -8,13 +8,13 @@ inline std::mt19937& GetRandomGenerator()
 	return rng;
 }
 
-inline double RandomDouble(const double min, const double max)
+inline double GetRandomDouble(const double min, const double max)
 {
 	std::uniform_real_distribution dist(min, max);
 	return dist(GetRandomGenerator());
 }
 
-inline int RandomInt(const int min, const int max)
+inline int GetRandomInt(const int min, const int max)
 {
 	std::uniform_int_distribution dist(min, max);
 	return dist(GetRandomGenerator());
