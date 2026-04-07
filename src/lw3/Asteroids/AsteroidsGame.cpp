@@ -2,12 +2,10 @@
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <random>
+#include <thread>
 
 #include "../../Common/Random/Random.h"
-
-#include <thread>
 
 constexpr double ROTATION = 0.1;
 constexpr int SHIP_HEIGHT = 40;
@@ -142,9 +140,12 @@ void AsteroidsGame::DrawWings() const
 
 void AsteroidsGame::DrawFire() const
 {
+	constexpr double fireStartFase = 0.8;
+	constexpr double fireAmplitude = 30;
+
 	const double time = glfwGetTime();
-	const double flicker = 0.8 + 0.2 * sin(time * 20); // TODO
-	const double flameLength = 30 * flicker;
+	const double flicker = fireStartFase + 0.2 * sin(time * 20);
+	const double flameLength = fireAmplitude * flicker;
 
 	glBegin(GL_TRIANGLES);
 
@@ -296,7 +297,9 @@ void AsteroidsGame::UpdateAsteroids()
 		asteroid.BoundPosition(m_width, m_height);
 	}
 }
+// TODO звук вынести на событие
 
+// TODO вынести логику столкновения в отдельный класс
 void AsteroidsGame::CalculateAsteroidsBreak()
 {
 	std::vector<Asteroid> newAsteroids;
@@ -393,7 +396,11 @@ void AsteroidsGame::CreateAsteroid()
 		cos(angle) * Asteroid::SPEED,
 		sin(angle) * Asteroid::SPEED,
 	};
-	m_asteroids.emplace_back(center, velocity, AsteroidSize::Large, Asteroid::BASE_SIZE);
+	m_asteroids.emplace_back(
+		center,
+		velocity,
+		AsteroidSize::Large,
+		Asteroid::BASE_SIZE);
 }
 
 void AsteroidsGame::Respawn()

@@ -20,6 +20,9 @@ inline int GetRandomInt(const int min, const int max)
 	return dist(GetRandomGenerator());
 }
 
+/**
+ * Return random angle from 0 to 360 degree
+ */
 inline int GetRandomAngle()
 {
 	std::uniform_int_distribution dist(0, 360);

@@ -91,10 +91,11 @@ std::vector<Asteroid> Asteroid::Split() const
 
 void Asteroid::GenerateShape()
 {
-	// TODO порефакторить
+	constexpr int minPoints = 8;
+	constexpr double maxDeviation = M_PI / 12;
 	m_localPoints.clear();
 
-	const int numPoints = 8 + GetRandomInt(0, 7);
+	const int numPoints = minPoints + GetRandomInt(0, 7);
 
 	std::vector<double> angles;
 	const double angleStep = 2.0 * M_PI / numPoints;
@@ -102,7 +103,7 @@ void Asteroid::GenerateShape()
 	for (int i = 0; i < numPoints; i++)
 	{
 		const double baseAngle = i * angleStep;
-		const double randomOffset = (GetRandomDouble(-1.0, 1.0)) * (M_PI / 12.0);
+		const double randomOffset = (GetRandomDouble(-1.0, 1.0)) * maxDeviation;
 		angles.push_back(baseAngle + randomOffset);
 	}
 
@@ -121,6 +122,7 @@ void Asteroid::GenerateShape()
 // Ray casting algorithm
 bool PointInPolygon(const double x, const double y, const std::vector<Point>& polygon)
 {
+	// TODO уточнить, что с делением на ноль
 	bool inside = false;
 
 	for (size_t i = 0, j = polygon.size() - 1; i < polygon.size(); j = i++)
@@ -145,7 +147,7 @@ std::vector<Asteroid> CreateTwoAsteroids(
 	std::vector<Asteroid> result;
 
 	auto& rng = GetRandomGenerator();
-	std::uniform_real_distribution angleDist(0.0, 2.0 * M_PI);
+	std::uniform_real_distribution angleDist(0.0, 2 * M_PI);
 
 	for (int i = 0; i < 2; i++)
 	{

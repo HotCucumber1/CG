@@ -15,13 +15,15 @@ BaseWindow::BaseWindow(
 	glfwSetWindowUserPointer(m_window.get(), this);
 	glfwSetWindowRefreshCallback(m_window.get(), &BaseWindow::RefreshCallback);
 	glfwSetCursorPosCallback(m_window.get(), &BaseWindow::CursorPosCallback);
-	glfwSetKeyCallback(m_window.get(), &BaseWindow::KeyCallback);;
+	glfwSetKeyCallback(m_window.get(), &BaseWindow::KeyCallback);
+	glfwSetMouseButtonCallback(m_window.get(), &BaseWindow::MouseButtonCallback);
 }
 
 void BaseWindow::Run()
 {
 	glfwMakeContextCurrent(m_window.get());
 
+	glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(m_window.get()))
 	{
 		int width;
@@ -31,6 +33,14 @@ void BaseWindow::Run()
 		glfwSwapBuffers(m_window.get());
 		glfwPollEvents();
 	}
+}
+void BaseWindow::SetDefaultOrtho(const int width, const int height, const int depth)
+{
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, width, 0, height, -depth, depth);
+
+	glMatrixMode(GL_MODELVIEW);
 }
 
 void BaseWindow::OnRefresh()
@@ -42,6 +52,10 @@ void BaseWindow::OnKeyClick(int key, int scancode, int action, int mods)
 }
 
 void BaseWindow::OnCursorPos(double x, double y)
+{
+}
+
+void BaseWindow::OnMouseButton(int button, int action, int mods)
 {
 }
 
@@ -68,6 +82,18 @@ void BaseWindow::KeyCallback(
 	if (const auto instance = GetInstance(window))
 	{
 		instance->OnKeyClick(key, scancode, action, mods);
+	}
+}
+
+void BaseWindow::MouseButtonCallback(
+	GLFWwindow* window,
+	const int button,
+	const int action,
+	const int mods)
+{
+	if (const auto instance = GetInstance(window))
+	{
+		instance->OnMouseButton(button, action, mods);
 	}
 }
 

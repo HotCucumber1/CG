@@ -16,5 +16,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(Catch2)
 
 
-add_subdirectory(src/lw3/Example)
+add_subdirectory(src/Example)
 add_subdirectory(src/lw3/Asteroids)
+
+add_subdirectory(src/lw4/Shape)
+add_subdirectory(src/lw4/Shape3)

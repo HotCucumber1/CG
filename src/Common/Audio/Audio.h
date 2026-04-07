@@ -3,11 +3,11 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
-class AudioPlayer
+class Audio
 {
 public:
-	AudioPlayer();
-	~AudioPlayer();
+	Audio();
+	~Audio();
 
 	bool LoadWAV(const std::string& filename);
 

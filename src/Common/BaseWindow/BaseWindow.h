@@ -21,6 +21,9 @@ public:
 
 	virtual ~BaseWindow() = default;
 
+protected:
+	static void SetDefaultOrtho(int width, int height, int depth);
+
 private:
 	virtual void Draw(int width, int height) = 0;
 
@@ -30,6 +33,8 @@ private:
 
 	virtual void OnCursorPos([[maybe_unused]] double x, [[maybe_unused]] double y);
 
+	virtual void OnMouseButton(int button, int action, int mods);
+
 	static GLFWWindowPtr CreateWindow(int w, int h, const char* title);
 
 	static BaseWindow* GetInstance(GLFWwindow* window);
@@ -37,6 +42,8 @@ private:
 	static void RefreshCallback(GLFWwindow* window);
 
 	static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+	static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 
 	static void CursorPosCallback(GLFWwindow* window, double x, double y);
 

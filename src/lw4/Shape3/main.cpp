@@ -1,6 +1,5 @@
 #include "../../Common/GLFWInitializer/GLFWInitializer.h"
-#include "AsteroidsGame.h"
-
+#include "Shape3.h"
 #include <iostream>
 
 constexpr int WINDOW_WIDTH = 1000;
@@ -11,8 +10,8 @@ int main()
 	try
 	{
 		GLFWInitializer initializer;
-		AsteroidsGame game(WINDOW_WIDTH, WINDOW_HEIGHT, "Asteroids");
-		game.Run();
+		Shape3 shapeWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Shape 3");
+		shapeWindow.Run();
 	}
 	catch (const std::exception& e)
 	{

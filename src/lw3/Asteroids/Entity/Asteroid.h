@@ -1,5 +1,5 @@
 #pragma once
-#include "../../../Common/Component/BaseComponent.h"
+#include "../../../Common/Component/Component2.h"
 
 #include <vector>
 

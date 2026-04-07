@@ -1,10 +1,10 @@
-#include "AudioPlayer.h"
+#include "Audio.h"
 
 #include <cstring>
 #include <iostream>
 #include <vector>
 
-AudioPlayer::AudioPlayer()
+Audio::Audio()
 {
 	m_device = alcOpenDevice(nullptr);
 	if (!m_device)
@@ -30,7 +30,7 @@ AudioPlayer::AudioPlayer()
 	}
 }
 
-AudioPlayer::~AudioPlayer()
+Audio::~Audio()
 {
 	if (m_buffer)
 	{
@@ -51,7 +51,7 @@ AudioPlayer::~AudioPlayer()
 	}
 }
 
-bool AudioPlayer::LoadWAV(const std::string& filename)
+bool Audio::LoadWAV(const std::string& filename)
 {
 	constexpr int riffHeaderSize = 12;
 	constexpr int chunkHeaderSize = 8;
@@ -146,7 +146,7 @@ bool AudioPlayer::LoadWAV(const std::string& filename)
 
 			alGenSources(1, &m_source);
 			alSourcei(m_source, AL_BUFFER, m_buffer);
-			alSourcef(m_source, AL_GAIN, 1.0f);
+			alSourcef(m_source, AL_GAIN, 1);
 
 			return true;
 		}
@@ -162,7 +162,7 @@ bool AudioPlayer::LoadWAV(const std::string& filename)
 	return false;
 }
 
-void AudioPlayer::Play() const
+void Audio::Play() const
 {
 	if (!m_source)
 	{
@@ -172,7 +172,7 @@ void AudioPlayer::Play() const
 	alSourcePlay(m_source);
 }
 
-bool AudioPlayer::CheckError(const std::string& operation)
+bool Audio::CheckError(const std::string& operation)
 {
 	ALenum error = alGetError();
 	if (error != AL_NO_ERROR)

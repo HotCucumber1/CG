@@ -1,7 +1,7 @@
 #pragma once
-#include "../../Common/Audio/AudioPlayer.h"
+#include "../../Common/Audio/Audio.h"
 #include "../../Common/BaseWindow/BaseWindow.h"
-#include "../../Common/Component/BaseComponent.h"
+#include "../../Common/Component/Component2.h"
 #include "Entity/Asteroid.h"
 #include "Entity/Bullet.h"
 
@@ -85,7 +85,7 @@ private:
 	std::deque<Bullet> m_bullets;
 	std::vector<Asteroid> m_asteroids;
 
-	AudioPlayer m_shootSound;
-	AudioPlayer m_breakSound;
-	AudioPlayer m_shipBreakSound;
+	Audio m_shootSound;
+	Audio m_breakSound;
+	Audio m_shipBreakSound;
 };

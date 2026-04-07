@@ -6,9 +6,10 @@ file(
 add_executable(Asteroids
         ../../Common/GLFWInitializer/GLFWInitializer.cpp
         ../../Common/BaseWindow/BaseWindow.cpp
-        ../../Common/Audio/AudioPlayer.cpp
+        ../../Common/Audio/Audio.cpp
         Entity/Bullet.cpp
         Entity/Asteroid.cpp
+        AsteroidsView.cpp
         AsteroidsGame.cpp
         main.cpp)
 
