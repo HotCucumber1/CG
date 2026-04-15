@@ -1,6 +1,8 @@
+#include <GL/glew.h>
+#include <stdexcept>
 #include "BaseWindow.h"
 
-#include <stdexcept>
+#include <iostream>
 
 BaseWindow::BaseWindow(
 	const int width,
@@ -12,6 +14,13 @@ BaseWindow::BaseWindow(
 	{
 		throw std::runtime_error("Failed to create window");
 	}
+	glfwMakeContextCurrent(m_window.get());
+	glewExperimental = GL_TRUE;
+	if (glewInit() != GLEW_OK)
+	{
+		throw std::runtime_error("Failed to initialize GLEW");
+	}
+
 	glfwSetWindowUserPointer(m_window.get(), this);
 	glfwSetWindowRefreshCallback(m_window.get(), &BaseWindow::RefreshCallback);
 	glfwSetCursorPosCallback(m_window.get(), &BaseWindow::CursorPosCallback);
