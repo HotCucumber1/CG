@@ -55,7 +55,7 @@ private:
 
 private:
 	Ball m_ball{ 0.3, 5, Vector3f(0, 1, 0) };
-	Paddle m_paddle{ 3, 0.4, 0.8, 1, Vector3f(0.0f, -4.0f, 0.0f) };
+	Paddle m_paddle{ 3, 0.4, 0.8, 5, Vector3f(0.0f, -4.0f, 0.0f) };
 	std::unique_ptr<Level> m_currentLevel;
 	std::vector<Level::Layout> m_levelLayouts;
 

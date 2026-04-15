@@ -33,8 +33,8 @@ private:
 	void SetProjectionAndView(int width, int height) const;
 
 private:
-	GLint m_lightPosLoc;
-	GLint m_lightColorLoc;
+	GLint m_lightPosLoc = -1;
+	GLint m_lightColorLoc = -1;
 	float m_paddleMoveDirection = 0;
 	float m_lastFrameTime = 0;
 
@@ -50,13 +50,13 @@ private:
 	Mesh m_sphereMesh;
 	Mesh m_planeMesh;
 
-	GLint m_modelLoc;
-	GLint m_viewLoc;
-	GLint m_projectionLoc;
+	GLint m_modelLoc = -1;
+	GLint m_viewLoc = -1;
+	GLint m_projectionLoc = -1;
 
-	GLint m_viewPosLoc;
-	GLint m_objectColorLoc;
-	GLint m_materialDiffuseLoc;
+	GLint m_viewPosLoc = -1;
+	GLint m_objectColorLoc = -1;
+	GLint m_materialDiffuseLoc = -1;
 
 	Vector3f m_lightPos = { 5, 10, 5 };
 	Vector3f m_lightColor = { 1, 1, 1 };

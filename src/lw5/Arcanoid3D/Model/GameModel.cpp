@@ -1,7 +1,5 @@
 #include "GameModel.h"
 
-#include <iostream>
-
 GameModel::GameModel()
 {
 	m_levelLayouts.push_back({ {
@@ -10,9 +8,9 @@ GameModel::GameModel()
 		{ 1, 1, 1, 1, 1 },
 	} });
 	m_levelLayouts.push_back({ {
+		{ 3, 3, 3, 3, 3 },
 		{ 2, 2, 2, 2, 2 },
 		{ 1, 1, 1, 1, 1 },
-		{ 3, 3, 3, 3, 3 },
 	} });
 	m_levelLayouts.push_back({ {
 		{ 1, 2, 3, 2, 1 },
@@ -30,8 +28,8 @@ void GameModel::Update(const float deltaTime, const float paddleMoveDirection)
 		return;
 	}
 
-	constexpr float fieldLeft = -8;
-	constexpr float fieldRight = 8;
+	constexpr float fieldLeft = -4;
+	constexpr float fieldRight = 4;
 	m_paddle.Move(paddleMoveDirection, deltaTime, fieldLeft, fieldRight);
 
 	const Vector2f paddleBoundsX(m_paddle.GetPosition().x, 0);
@@ -41,7 +39,7 @@ void GameModel::Update(const float deltaTime, const float paddleMoveDirection)
 	{
 		m_currentLevel->UpdateBricksCollision(m_ball);
 	}
-	if (m_ball.GetPosition().y - m_ball.GetRadius() < -6.0f)
+	if (m_ball.GetPosition().y - m_ball.GetRadius() < -10)
 	{
 		m_lives--;
 		if (m_lives <= 0)
@@ -63,7 +61,7 @@ void GameModel::Update(const float deltaTime, const float paddleMoveDirection)
 
 void GameModel::ResetBall()
 {
-	m_ball.SetPosition(Vector3f(m_paddle.GetPosition().x, -6.5, 0));
+	m_ball.SetPosition(Vector3f(m_paddle.GetPosition().x, m_paddle.GetPosition().y + m_ball.GetRadius(), 0));
 	m_ball.SetVelocity(Vector3f(0, 1, 0).Normalized() * m_ball.GetSpeed());
 }
 

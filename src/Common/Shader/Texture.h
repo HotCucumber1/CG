@@ -7,6 +7,7 @@ class Texture
 {
 public:
 	Texture() = default;
+
 	explicit Texture(const std::string& path)
 		: Texture()
 	{
@@ -50,7 +51,7 @@ public:
 		Cleanup();
 
 		stbi_set_flip_vertically_on_load(true);
-		const auto data = stbi_load(path.c_str(), &m_width, &m_height, &m_channels, 0);
+		const auto data = stbi_load(path.c_str(), &m_width, &m_height, &m_channels, 4);
 		if (!data)
 		{
 			return false;
@@ -65,12 +66,11 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		const auto format = GetTexImageFormat();
 
 		glTexImage2D(
 			GL_TEXTURE_2D, 0,
-			format, m_width, m_height,
-			0, format, GL_UNSIGNED_BYTE, data);
+			GL_RGBA, m_width, m_height,
+			0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		__glewGenerateMipmap(GL_TEXTURE_2D);
 
 		stbi_image_free(data);
@@ -121,21 +121,6 @@ private:
 		m_width = 0;
 		m_height = 0;
 		m_channels = 0;
-	}
-
-	int GetTexImageFormat()
-	{
-		switch (m_channels)
-		{
-		case 1:
-			return GL_RED;
-		case 3:
-			return GL_RGB;
-		case 4:
-			return GL_RGBA;
-		default:
-			return GL_RGB;
-		}
 	}
 
 private:

@@ -17,10 +17,10 @@ void Ball::Update(
 	const float paddleY,
 	const float paddleHalfWidth)
 {
-	m_position = m_position + m_velocity * deltaTime; // TODO вынести в GameModel
+	m_position = m_position + m_velocity * deltaTime;
 
-	constexpr float fieldLeft = -10;
-	constexpr float fieldRight = 10;
+	constexpr float fieldLeft = -4; // TODO вынести в модель
+	constexpr float fieldRight = 4;
 	constexpr float fieldTop = 8;
 	constexpr float fieldFront = -3;
 	constexpr float fieldBack = 3;

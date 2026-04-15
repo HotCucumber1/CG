@@ -13,7 +13,11 @@ struct Vertex
 	Vector2f texCoords;
 
 	Vertex() = default;
-	Vertex(const Vector3f& pos, const Vector3f& norm, const Vector2f& tex)
+
+	Vertex(
+		const Vector3f& pos,
+		const Vector3f& norm,
+		const Vector2f& tex)
 		: position(pos)
 		, normal(norm)
 		, texCoords(tex)
@@ -219,10 +223,10 @@ inline Mesh CreateCubeMesh()
 
 	std::vector<unsigned int> indices = {
 		0, 1, 2, 2, 3, 0,
-		4, 5, 6, 6, 7, 4,
+		4, 7, 6, 6, 5, 4,
 		8, 9, 10, 10, 11, 8,
-		12, 13, 14, 14, 15, 12,
-		16, 17, 18, 18, 19, 16,
+		12, 15, 14, 14, 13, 12,
+		16, 19, 18, 18, 17, 16,
 		20, 21, 22, 22, 23, 20
 	};
 
@@ -281,19 +285,24 @@ inline Mesh CreateSphereMesh(
 
 inline Mesh CreatePlaneMesh(const float width, const float height)
 {
-	const auto halfW = width / 2;
-	const auto halfH = height / 2;
+	const auto halfW = width;
+	const auto halfH = height;
 
 	std::vector<Vertex> vertices = {
-		{ { -halfW, 0.0f, -halfH }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } },
-		{ { halfW, 0.0f, -halfH }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
-		{ { halfW, 0.0f, halfH }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 1.0f } },
-		{ { -halfW, 0.0f, halfH }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } }
+		{ { -halfW, 0.0f, -halfH }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
+		{ { halfW, 0.0f, -halfH }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 1.0f } },
+		{ { halfW, 0.0f, halfH }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f } },
+
+		{ { -halfW, 0.0f, halfH }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f } }
 	};
 
 	std::vector<unsigned int> indices = {
-		0, 1, 2,
-		2, 3, 0
+		0,
+		3,
+		2,
+		2,
+		1,
+		0,
 	};
 
 	return { vertices, indices };

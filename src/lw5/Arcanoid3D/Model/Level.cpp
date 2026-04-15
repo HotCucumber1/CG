@@ -97,21 +97,18 @@ void Level::UpdateBricksCollision(Ball& ball) const
 		{
 			continue;
 		}
-
 		Vector3f normal;
 		if (brick->CheckCollision(ballPos, ballRadius, normal))
 		{
 			brick->Hit();
 
-			float dot = ballVel.Dot(normal);
+			const auto dot = ball.GetVelocity().Dot(normal);
 			if (dot < 0)
 			{
-				const auto newVelocity = ballVel - normal * (2.0f * dot);
-				ball.SetVelocity(newVelocity);
+				ball.SetVelocity(ball.GetVelocity() - normal * (2 * dot));
 			}
+			ball.SetPosition(ball.GetPosition() + normal * 0.1);
 
-			const auto correctedPos = ballPos + normal * (ballRadius - (ballPos - brick->GetPosition()).GetLength());
-			ball.SetPosition(correctedPos);
 			break;
 		}
 	}

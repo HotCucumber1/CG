@@ -158,8 +158,7 @@ void GameView::RenderBricks() const
 		model = glm::scale(model, glm::vec3(size.x * 2, size.y * 2, size.z * 2));
 
 		__glewUniformMatrix4fv(m_modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		const auto color = brick->GetColor();
-		__glewUniform3f(m_objectColorLoc, color.x, color.y, color.z);
+		__glewUniform3f(m_objectColorLoc, 1, 1, 1);
 
 		m_cubeMesh.Draw();
 	}
@@ -167,8 +166,13 @@ void GameView::RenderBricks() const
 
 void GameView::RenderBackground() const
 {
-	auto model = glm::translate(glm::mat4(1), glm::vec3(0, 0, -5));
-	model = glm::scale(model, glm::vec3(20, 15, 1));
+	const float fieldWidth = 16.0f;  // от -8 до 8
+	const float fieldHeight = 13.0f; // от -7 до 6
+	const float bottomY = 0;
+
+	float centerY = bottomY + (fieldHeight / 2.0f);
+	auto model = glm::translate(glm::mat4(1), glm::vec3(0, centerY, -5));
+	model = glm::scale(model, glm::vec3(fieldWidth, fieldHeight, 1));
 	model = glm::rotate(model, glm::radians(90.f), glm::vec3(1, 0, 0));
 
 	__glewUniformMatrix4fv(m_modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -184,7 +188,7 @@ void GameView::ApplyLighting() const
 {
 	__glewUniform3f(m_lightPosLoc, m_lightPos.x, m_lightPos.y, m_lightPos.z);
 	__glewUniform3f(m_lightColorLoc, m_lightColor.x, m_lightColor.y, m_lightColor.z);
-	__glewUniform3f(m_viewPosLoc, 0.0f, 5.0f, 15.0f); // TODO че это
+	__glewUniform3f(m_viewPosLoc, 0, 5, 15); // TODO че это
 }
 
 void GameView::SetProjectionAndView(const int width, const int height) const
@@ -195,7 +199,7 @@ void GameView::SetProjectionAndView(const int width, const int height) const
 		0.1f,
 		100.f); // TODO Это что такое
 	glm::mat4 view = glm::lookAt(
-		glm::vec3(0, 5, 15),
+		glm::vec3(0, -10, 15),
 		glm::vec3(0, 0, 0),
 		glm::vec3(0, 1, 0));
 
