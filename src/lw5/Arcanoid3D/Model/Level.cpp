@@ -29,7 +29,7 @@ void Level::LoadFromLayout(const Layout& layout)
 	m_gridWidth = layout[0][0].size();
 
 	const auto startX = -(m_gridWidth - 1) * (Brick::WIDTH + Brick::SPACING) / 2;
-	constexpr float startY = 4;
+	constexpr float startY = 6;
 	const auto startZ = -(m_gridDepth - 1) * (Brick::DEPTH + Brick::SPACING) / 2;
 
 	Vector3f brickSize(Brick::WIDTH / 2, Brick::HEIGHT / 2, Brick::DEPTH / 2);
@@ -60,8 +60,9 @@ void Level::LoadFromLayout(const Layout& layout)
 	}
 }
 
-void Level::UpdateBricksCollision(Ball& ball) const
+bool Level::UpdateBricksCollision(Ball& ball) const
 {
+	bool brickDestroyed = false;
 	constexpr auto outStep = 0.1;
 	const auto ballPos = ball.GetPosition();
 	const auto ballRadius = ball.GetRadius();
@@ -76,6 +77,7 @@ void Level::UpdateBricksCollision(Ball& ball) const
 		if (brick->CheckCollision(ballPos, ballRadius, normal))
 		{
 			brick->Hit();
+			brickDestroyed = true;
 
 			const auto dot = ball.GetVelocity().Dot(normal);
 			if (dot < 0)
@@ -86,4 +88,5 @@ void Level::UpdateBricksCollision(Ball& ball) const
 			break;
 		}
 	}
+	return brickDestroyed;
 }

@@ -24,6 +24,10 @@ std::string LoadShaderSource(const std::string& filepath);
 GameView::GameView(const int width, const int height, const char* title)
 	: BaseWindow(width, height, title)
 {
+	m_brickBreakSound.LoadWAV("data/sound/brick.wav");
+	m_ballReflectionSound.LoadWAV("data/sound/ball.wav");
+	m_mainTheme.LoadWAV("data/sound/main.wav");
+	m_mainTheme.Play();
 	SetupOpenGL();
 }
 
@@ -33,7 +37,15 @@ void GameView::Draw(const int width, const int height)
 	const auto deltaTIme = currentTime - m_lastFrameTime;
 	m_lastFrameTime = currentTime;
 
-	m_model.Update(deltaTIme, m_paddleMoveDirection);
+	const auto events = m_model.Update(deltaTIme, m_paddleMoveDirection);
+	if (events.ballReflected)
+	{
+		m_ballReflectionSound.Play();
+	}
+	if (events.brickDestroyed)
+	{
+		m_brickBreakSound.Play();
+	}
 
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

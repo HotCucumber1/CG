@@ -9,6 +9,7 @@ add_executable(
         ../../Common/StbImpl.cpp
         ../../Common/GLFWInitializer/GLFWInitializer.cpp
         ../../Common/BaseWindow/BaseWindow.cpp
+        ../../Common/Audio/Audio.cpp
         Model/Ball.cpp
         Model/Brick.cpp
         Model/Paddle.cpp
@@ -18,5 +19,5 @@ add_executable(
         main.cpp)
 
 target_include_directories(Arcanoid3D PRIVATE ${GLEW_INCLUDE_DIRS})
-target_link_libraries(Arcanoid3D PRIVATE OpenGL::GL glfw OpenGL::GLU)
+target_link_libraries(Arcanoid3D PRIVATE OpenGL::GL glfw OpenGL::GLU OpenAL::OpenAL)
 target_link_libraries(Arcanoid3D PRIVATE ${GLEW_LIBRARIES})

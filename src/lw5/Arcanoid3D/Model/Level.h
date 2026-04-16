@@ -17,7 +17,7 @@ public:
 
 	void LoadFromLayout(const Layout& layout);
 
-	void UpdateBricksCollision(Ball& ball) const;
+	bool UpdateBricksCollision(Ball& ball) const;
 
 	const std::vector<std::unique_ptr<Brick>>& GetBricks() const
 	{

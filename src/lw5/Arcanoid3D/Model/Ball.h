@@ -6,7 +6,7 @@ class Ball
 public:
 	Ball(float radius, float speed, const Vector3f& startPos);
 
-	void Update(float deltaTime, const Vector2f& paddleBoundsX, float paddleY, float paddleHalfWidth);
+	bool Update(float deltaTime, const Vector2f& paddleBoundsX, float paddleY, float paddleHalfWidth);
 
 	void ReflectX();
 

@@ -4,6 +4,12 @@
 #include "Paddle.h"
 #include <vector>
 
+struct Event
+{
+	bool brickDestroyed;
+	bool ballReflected;
+};
+
 class GameModel
 {
 public:
@@ -12,7 +18,7 @@ public:
 
 	GameModel();
 
-	void Update(float deltaTime, float paddleMoveDirection);
+	Event Update(float deltaTime, float paddleMoveDirection);
 
 	void ResetBall();
 

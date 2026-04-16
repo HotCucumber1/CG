@@ -1,4 +1,5 @@
 #pragma once
+#include "../../../Common/Audio/Audio.h"
 #include "../../../Common/Shader/Mesh.h"
 #include "../../../Common/BaseWindow/BaseWindow.h"
 #include "../../../Common/Shader/Program.h"
@@ -63,4 +64,8 @@ private:
 
 	Vector3f m_lightPos = LIGHT_POS;
 	Vector3f m_lightColor = LIGHT_COLOR;
+
+	Audio m_brickBreakSound;
+	Audio m_ballReflectionSound;
+	Audio m_mainTheme;
 };

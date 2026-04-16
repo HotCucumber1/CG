@@ -12,12 +12,13 @@ Ball::Ball(
 {
 }
 
-void Ball::Update(
+bool Ball::Update(
 	const float deltaTime,
 	const Vector2f& paddleBoundsX,
 	const float paddleY,
 	const float paddleHalfWidth)
 {
+	bool ballReflected = false;
 	m_position = m_position + m_velocity * deltaTime;
 
 	constexpr float fieldLeft = -GameModel::FIELD_WIDTH / 2;
@@ -27,16 +28,19 @@ void Ball::Update(
 	if (m_position.x - m_radius < fieldLeft)
 	{
 		m_position.x = fieldLeft + m_radius;
+		ballReflected = true;
 		ReflectX();
 	}
 	else if (m_position.x + m_radius > fieldRight)
 	{
 		m_position.x = fieldRight - m_radius;
+		ballReflected = true;
 		ReflectX();
 	}
 	if (m_position.y + m_radius > fieldTop)
 	{
 		m_position.y = fieldTop - m_radius;
+		ballReflected = true;
 		ReflectY();
 	}
 
@@ -49,6 +53,7 @@ void Ball::Update(
 		if (m_position.x >= paddleLeft && m_position.x <= paddleRight && m_position.y - m_radius <= paddleTop)
 		{
 			m_position.y = paddleTop + m_radius;
+			ballReflected = true;
 			ReflectY();
 
 			const float hitPosition = (m_position.x - paddleBoundsX.x) / paddleHalfWidth;
@@ -56,6 +61,7 @@ void Ball::Update(
 			m_velocity = m_velocity.Normalized() * m_speed;
 		}
 	}
+	return ballReflected;
 }
 
 void Ball::ReflectX()

@@ -26,11 +26,12 @@ GameModel::GameModel()
 	ResetBall();
 }
 
-void GameModel::Update(const float deltaTime, const float paddleMoveDirection)
+Event GameModel::Update(const float deltaTime, const float paddleMoveDirection)
 {
+	bool brickDestroyed = false;
 	if (m_gameOver || m_levelCompleted)
 	{
-		return;
+		return {};
 	}
 
 	constexpr float fieldLeft = -FIELD_WIDTH / 2;
@@ -38,11 +39,11 @@ void GameModel::Update(const float deltaTime, const float paddleMoveDirection)
 	m_paddle.Move(paddleMoveDirection, deltaTime, fieldLeft, fieldRight);
 
 	const Vector2f paddleBoundsX(m_paddle.GetPosition().x, 0);
-	m_ball.Update(deltaTime, paddleBoundsX, m_paddle.GetPosition().y, m_paddle.GetHalfWidth());
+	const auto ballReflected = m_ball.Update(deltaTime, paddleBoundsX, m_paddle.GetPosition().y, m_paddle.GetHalfWidth());
 
 	if (m_currentLevel)
 	{
-		m_currentLevel->UpdateBricksCollision(m_ball);
+		brickDestroyed = m_currentLevel->UpdateBricksCollision(m_ball);
 	}
 	if (m_ball.GetPosition().y - m_ball.GetRadius() < -FIELD_HEIGHT / 2)
 	{
@@ -61,6 +62,10 @@ void GameModel::Update(const float deltaTime, const float paddleMoveDirection)
 	{
 		m_levelCompleted = true;
 	}
+	return {
+		brickDestroyed,
+		ballReflected
+	};
 }
 
 void GameModel::ResetBall()
