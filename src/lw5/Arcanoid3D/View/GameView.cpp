@@ -9,6 +9,16 @@
 #include <iostream>
 #include <sstream>
 
+constexpr auto EYE_POS = glm::vec3(0, -10, 15);
+constexpr auto LOOK_AT = glm::vec3(0, 0, 0);
+constexpr auto UP = glm::vec3(0, 1, 0);
+
+constexpr auto FOV = glm::radians(50.f);
+
+constexpr auto BALL_RADIUS = 1;
+constexpr auto BALL_SEGMENTS = 32;
+constexpr auto BALL_RINGS = 16;
+
 std::string LoadShaderSource(const std::string& filepath);
 
 GameView::GameView(const int width, const int height, const char* title)
@@ -48,15 +58,11 @@ void GameView::OnKeyClick(const int key, int scancode, const int action, int mod
 {
 	if (key == GLFW_KEY_LEFT)
 	{
-		m_paddleMoveDirection = (action == GLFW_PRESS || action == GLFW_REPEAT)
-			? -1
-			: 0;
+		m_paddleMoveDirection = (action == GLFW_PRESS || action == GLFW_REPEAT) ? -1 : 0;
 	}
 	else if (key == GLFW_KEY_RIGHT)
 	{
-		m_paddleMoveDirection = (action == GLFW_PRESS || action == GLFW_REPEAT)
-			? 1
-			: 0;
+		m_paddleMoveDirection = (action == GLFW_PRESS || action == GLFW_REPEAT) ? 1 : 0;
 	}
 }
 
@@ -81,8 +87,8 @@ void GameView::SetupOpenGL()
 	m_backgroundTexture = Texture("data/textures/background.png");
 
 	m_cubeMesh = CreateCubeMesh();
-	m_sphereMesh = CreateSphereMesh(1, 32, 16);
-	m_planeMesh = CreatePlaneMesh(1, 1);
+	m_sphereMesh = CreateSphereMesh(BALL_RADIUS, BALL_SEGMENTS, BALL_RINGS);
+	m_planeMesh = CreatePlaneMesh(BALL_RADIUS, BALL_RADIUS);
 }
 
 void GameView::SetupUniformLocations()
@@ -115,7 +121,7 @@ void GameView::RenderBall() const
 	m_sphereMesh.Draw();
 }
 
-void GameView::RenderPaddle()
+void GameView::RenderPaddle() const
 {
 	const auto paddle = m_model.GetPaddle();
 	const auto pos = paddle.GetPosition();
@@ -166,13 +172,12 @@ void GameView::RenderBricks() const
 
 void GameView::RenderBackground() const
 {
-	const float fieldWidth = 16.0f;  // от -8 до 8
-	const float fieldHeight = 13.0f; // от -7 до 6
-	const float bottomY = 0;
+	constexpr float backgroundShift = -5;
+	constexpr float bottomY = 0;
+	constexpr float centerY = bottomY + (GameModel::FIELD_HEIGHT / 2);
 
-	float centerY = bottomY + (fieldHeight / 2.0f);
-	auto model = glm::translate(glm::mat4(1), glm::vec3(0, centerY, -5));
-	model = glm::scale(model, glm::vec3(fieldWidth, fieldHeight, 1));
+	auto model = glm::translate(glm::mat4(1), glm::vec3(0, centerY, backgroundShift));
+	model = glm::scale(model, glm::vec3(GameModel::FIELD_WIDTH, GameModel::FIELD_HEIGHT, 1));
 	model = glm::rotate(model, glm::radians(90.f), glm::vec3(1, 0, 0));
 
 	__glewUniformMatrix4fv(m_modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -180,7 +185,6 @@ void GameView::RenderBackground() const
 
 	m_backgroundTexture.Bind(0);
 	__glewUniform1i(m_materialDiffuseLoc, 0);
-
 	m_planeMesh.Draw();
 }
 
@@ -188,20 +192,21 @@ void GameView::ApplyLighting() const
 {
 	__glewUniform3f(m_lightPosLoc, m_lightPos.x, m_lightPos.y, m_lightPos.z);
 	__glewUniform3f(m_lightColorLoc, m_lightColor.x, m_lightColor.y, m_lightColor.z);
-	__glewUniform3f(m_viewPosLoc, 0, 5, 15); // TODO че это
+	__glewUniform3f(m_viewPosLoc, EYE_POS.x, EYE_POS.y, EYE_POS.z);
 }
 
 void GameView::SetProjectionAndView(const int width, const int height) const
 {
-	glm::mat4 projection = glm::perspective(
-		glm::radians(45.f),
-		static_cast<float>(width) / height,
-		0.1f,
-		100.f); // TODO Это что такое
-	glm::mat4 view = glm::lookAt(
-		glm::vec3(0, -10, 15),
-		glm::vec3(0, 0, 0),
-		glm::vec3(0, 1, 0));
+	constexpr float nearEdge = 0.1;
+	constexpr float farEdge = 100;
+
+	const auto aspectRatio = static_cast<float>(height) / static_cast<float>(width);
+	auto projection = glm::perspective(
+		FOV,
+		aspectRatio,
+		nearEdge,
+		farEdge);
+	auto view = glm::lookAt(EYE_POS, LOOK_AT, UP);
 
 	__glewUniformMatrix4fv(m_projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 	__glewUniformMatrix4fv(m_viewLoc, 1, GL_FALSE, glm::value_ptr(view));

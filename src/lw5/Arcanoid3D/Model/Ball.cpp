@@ -1,5 +1,7 @@
 #include "Ball.h"
 
+#include "GameModel.h"
+
 Ball::Ball(
 	const float radius,
 	const float speed,
@@ -7,7 +9,6 @@ Ball::Ball(
 	: m_radius(radius)
 	, m_speed(speed)
 	, m_position(startPos)
-	, m_velocity(Vector3f())
 {
 }
 
@@ -19,11 +20,9 @@ void Ball::Update(
 {
 	m_position = m_position + m_velocity * deltaTime;
 
-	constexpr float fieldLeft = -4; // TODO вынести в модель
-	constexpr float fieldRight = 4;
-	constexpr float fieldTop = 8;
-	constexpr float fieldFront = -3;
-	constexpr float fieldBack = 3;
+	constexpr float fieldLeft = -GameModel::FIELD_WIDTH / 2;
+	constexpr float fieldRight = GameModel::FIELD_WIDTH / 2;
+	constexpr float fieldTop = GameModel::FIELD_HEIGHT;
 
 	if (m_position.x - m_radius < fieldLeft)
 	{
@@ -40,16 +39,6 @@ void Ball::Update(
 		m_position.y = fieldTop - m_radius;
 		ReflectY();
 	}
-	if (m_position.z - m_radius < fieldFront)
-	{
-		m_position.z = fieldFront + m_radius;
-		ReflectZ();
-	}
-	else if (m_position.z + m_radius > fieldBack)
-	{
-		m_position.z = fieldBack - m_radius;
-		ReflectZ();
-	}
 
 	if (m_position.y - m_radius < paddleY && m_velocity.y < 0)
 	{
@@ -57,23 +46,15 @@ void Ball::Update(
 		const float paddleLeft = paddleBoundsX.x - paddleHalfWidth;
 		const float paddleRight = paddleBoundsX.x + paddleHalfWidth;
 
-		if (m_position.x >= paddleLeft && m_position.x <= paddleRight)
+		if (m_position.x >= paddleLeft && m_position.x <= paddleRight && m_position.y - m_radius <= paddleTop)
 		{
-			if (m_position.y - m_radius <= paddleTop)
-			{
-				m_position.y = paddleTop + m_radius;
-				ReflectY();
+			m_position.y = paddleTop + m_radius;
+			ReflectY();
 
-				const float hitPosition = (m_position.x - paddleBoundsX.x) / paddleHalfWidth;
-				m_velocity.x += hitPosition * 3.0f;
-				m_velocity = m_velocity.Normalized() * m_speed;
-			}
+			const float hitPosition = (m_position.x - paddleBoundsX.x) / paddleHalfWidth;
+			m_velocity.x += hitPosition * 3;
+			m_velocity = m_velocity.Normalized() * m_speed;
 		}
-	}
-
-	if (m_velocity.GetLength() > m_speed * 1.5f)
-	{
-		m_velocity = m_velocity.Normalized() * m_speed;
 	}
 }
 

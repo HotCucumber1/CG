@@ -9,9 +9,9 @@ Paddle::Paddle(
 	const float speed,
 	const Vector3f& startPos)
 	: m_position(startPos)
-	, m_halfWidth(width * 0.5)
-	, m_halfHeight(height * 0.5)
-	, m_halfDepth(depth * 0.5)
+	, m_width(width)
+	, m_height(height)
+	, m_depth(depth)
 	, m_speed(speed)
 {
 }
@@ -28,6 +28,6 @@ void Paddle::Move(
 	}
 	auto newX = m_position.x + direction * m_speed * deltaTime;
 
-	newX = std::clamp(newX, leftBound + m_halfWidth, rightBound - m_halfWidth);
+	newX = std::clamp(newX, leftBound + m_width / 2, rightBound - m_width / 2);
 	m_position.x = newX;
 }

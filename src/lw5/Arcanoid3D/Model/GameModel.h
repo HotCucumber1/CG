@@ -7,6 +7,9 @@
 class GameModel
 {
 public:
+	static constexpr float FIELD_WIDTH = 8;
+	static constexpr float FIELD_HEIGHT = 10;
+
 	GameModel();
 
 	void Update(float deltaTime, float paddleMoveDirection);
@@ -18,7 +21,7 @@ public:
 		return m_ball;
 	}
 
-	Paddle& GetPaddle()
+	Paddle GetPaddle() const
 	{
 		return m_paddle;
 	}
@@ -38,11 +41,6 @@ public:
 		return m_levelCompleted;
 	}
 
-	int GetScore() const
-	{
-		return m_score;
-	}
-
 	int GetLives() const
 	{
 		return m_lives;
@@ -59,7 +57,6 @@ private:
 	std::unique_ptr<Level> m_currentLevel;
 	std::vector<Level::Layout> m_levelLayouts;
 
-	int m_score = 0;
 	int m_lives = 3;
 	bool m_gameOver = false;
 	bool m_levelCompleted = false;

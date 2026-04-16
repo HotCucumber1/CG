@@ -1,14 +1,6 @@
 #include "Level.h"
 
-Level::Level(
-	const int width,
-	const int height,
-	const int depth)
-	: m_gridWidth(width)
-	, m_gridHeight(height)
-	, m_gridDepth(depth)
-{
-}
+#include <iostream>
 
 bool Level::IsCompleted() const
 {
@@ -32,20 +24,15 @@ void Level::LoadFromLayout(const Layout& layout)
 		return;
 	}
 
-	m_gridDepth = static_cast<int>(layout.size());
-	m_gridHeight = static_cast<int>(layout[0].size());
-	m_gridWidth = static_cast<int>(layout[0][0].size());
+	m_gridDepth = layout.size();
+	m_gridHeight = layout[0].size();
+	m_gridWidth = layout[0][0].size();
 
-	constexpr auto brickWidth = 1.5f; // TODO в нормальные константы
-	constexpr auto brickHeight = 0.8f;
-	constexpr auto brickDepth = 0.8f;
-	constexpr auto spacing = 0.1f;
+	const auto startX = -(m_gridWidth - 1) * (Brick::WIDTH + Brick::SPACING) / 2;
+	constexpr float startY = 4;
+	const auto startZ = -(m_gridDepth - 1) * (Brick::DEPTH + Brick::SPACING) / 2;
 
-	const auto startX = -(m_gridWidth - 1) * (brickWidth + spacing) * 0.5;
-	const auto startY = 4.0f;
-	const auto startZ = -(m_gridDepth - 1) * (brickDepth + spacing) * 0.5;
-
-	Vector3f brickSize(brickWidth * 0.5, brickHeight * 0.5, brickDepth * 0.5);
+	Vector3f brickSize(Brick::WIDTH / 2, Brick::HEIGHT / 2, Brick::DEPTH / 2);
 
 	for (int k = 0; k < m_gridDepth; ++k)
 	{
@@ -58,28 +45,16 @@ void Level::LoadFromLayout(const Layout& layout)
 				{
 					continue;
 				}
-				Vector3f position(
-					startX + i * (brickWidth + spacing),
-					startY - j * (brickHeight + spacing),
-					startZ + k * (brickDepth + spacing));
 
-				Vector3f color;
-				switch (hitPoints)
-				{
-				case 1:
-					color = Vector3f(0.2f, 0.8f, 0.2f);
-					break;
-				case 2:
-					color = Vector3f(0.9f, 0.9f, 0.2f);
-					break;
-				case 3:
-					color = Vector3f(0.9f, 0.5f, 0.1f);
-					break;
-				default:
-					color = Vector3f(0.9f, 0.1f, 0.1f);
-					break;
-				}
-				m_bricks.push_back(std::make_unique<Brick>(position, brickSize, hitPoints, color));
+				Vector3f position(
+					startX + i * (Brick::WIDTH + Brick::SPACING),
+					startY - j * (Brick::HEIGHT + Brick::SPACING),
+					startZ + k * (Brick::DEPTH + Brick::SPACING));
+
+				m_bricks.push_back(std::make_unique<Brick>(
+					position,
+					brickSize,
+					hitPoints));
 			}
 		}
 	}
@@ -87,9 +62,9 @@ void Level::LoadFromLayout(const Layout& layout)
 
 void Level::UpdateBricksCollision(Ball& ball) const
 {
+	constexpr auto outStep = 0.1;
 	const auto ballPos = ball.GetPosition();
 	const auto ballRadius = ball.GetRadius();
-	const auto ballVel = ball.GetVelocity();
 
 	for (const auto& brick : m_bricks)
 	{
@@ -107,8 +82,7 @@ void Level::UpdateBricksCollision(Ball& ball) const
 			{
 				ball.SetVelocity(ball.GetVelocity() - normal * (2 * dot));
 			}
-			ball.SetPosition(ball.GetPosition() + normal * 0.1);
-
+			ball.SetPosition(ball.GetPosition() + normal * outStep);
 			break;
 		}
 	}

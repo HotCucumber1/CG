@@ -11,7 +11,7 @@ public:
 		std::vector<
 			std::vector<int>>>;
 
-	Level(int width, int height, int depth);
+	Level() = default;
 
 	bool IsCompleted() const;
 
@@ -25,7 +25,7 @@ public:
 	}
 
 private:
-	std::vector<std::unique_ptr<Brick>> m_bricks; // TODO зачем указатели?
+	std::vector<std::unique_ptr<Brick>> m_bricks;
 	int m_gridWidth;
 	int m_gridHeight;
 	int m_gridDepth;

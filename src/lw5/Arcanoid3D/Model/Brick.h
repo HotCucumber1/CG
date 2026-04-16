@@ -4,11 +4,15 @@
 class Brick
 {
 public:
+	static constexpr float WIDTH = 1.5;
+	static constexpr float HEIGHT = 0.8;
+	static constexpr float DEPTH = 0.8;
+	static constexpr float SPACING = 0.1;
+
 	Brick(
 		const Vector3f& position,
 		const Vector3f& size,
-		int hitPoints,
-		const Vector3f& color);
+		int hitPoints);
 
 	bool IsDestroyed() const
 	{
@@ -38,16 +42,10 @@ public:
 		return m_size;
 	}
 
-	Vector3f GetColor() const
-	{
-		return m_color;
-	}
-
 	bool CheckCollision(const Vector3f& ballPos, float ballRadius, Vector3f& outNormal) const;
 
 private:
 	int m_hitPoints;
 	Vector3f m_position;
 	Vector3f m_size;
-	Vector3f m_color;
 };

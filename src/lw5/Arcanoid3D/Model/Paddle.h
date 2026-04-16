@@ -15,12 +15,12 @@ public:
 
 	Vector3f GetSize() const
 	{
-		return Vector3f(m_halfWidth * 2, m_halfHeight * 2, m_halfDepth * 2.0f);
+		return Vector3f(m_width, m_height, m_depth);
 	}
 
 	float GetHalfWidth() const
 	{
-		return m_halfWidth;
+		return m_width / 2;
 	}
 
 	void SetPosition(const Vector3f& pos)
@@ -30,8 +30,8 @@ public:
 
 private:
 	Vector3f m_position;
-	float m_halfWidth; // TODO почему half
-	float m_halfHeight;
-	float m_halfDepth;
+	float m_width;
+	float m_height;
+	float m_depth;
 	float m_speed;
 };

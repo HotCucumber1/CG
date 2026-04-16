@@ -5,6 +5,9 @@
 #include "../../../Common/Shader/Texture.h"
 #include "../Model/GameModel.h"
 
+const Vector3f LIGHT_POS = { 5, 10, 5 };
+const Vector3f LIGHT_COLOR = { 1, 1, 1 };
+
 class GameView final : public BaseWindow
 {
 public:
@@ -18,11 +21,11 @@ protected:
 private:
 	void SetupOpenGL();
 
-	void SetupUniformLocations(); // TODO не факт
+	void SetupUniformLocations();
 
 	void RenderBall() const;
 
-	void RenderPaddle();
+	void RenderPaddle() const;
 
 	void RenderBricks() const;
 
@@ -58,6 +61,6 @@ private:
 	GLint m_objectColorLoc = -1;
 	GLint m_materialDiffuseLoc = -1;
 
-	Vector3f m_lightPos = { 5, 10, 5 };
-	Vector3f m_lightColor = { 1, 1, 1 };
+	Vector3f m_lightPos = LIGHT_POS;
+	Vector3f m_lightColor = LIGHT_COLOR;
 };
