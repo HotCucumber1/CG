@@ -3,11 +3,6 @@
 #include <cmath>
 #include <vector>
 
-LineMash::~LineMash()
-{
-	CleanUp();
-}
-
 void LineMash::Init()
 {
 	std::vector<float> vertices;
@@ -52,16 +47,4 @@ void LineMash::Draw() const
 	glBindVertexArray(m_vao);
 	glDrawArrays(GL_LINE_STRIP, 0, m_vertexCount);
 	glBindVertexArray(0);
-}
-
-void LineMash::CleanUp() const
-{
-	if (m_vbo)
-	{
-		glDeleteBuffers(1, &m_vbo);
-	}
-	if (m_vao)
-	{
-		glDeleteVertexArrays(1, &m_vao);
-	}
 }
