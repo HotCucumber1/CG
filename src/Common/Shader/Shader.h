@@ -1,8 +1,23 @@
 #pragma once
 #include <cassert>
+#include <fstream>
+#include <sstream>
 #include <GL/glew.h>
 #include <stdexcept>
 #include <utility>
+
+inline std::string LoadShaderSource(const std::string& filepath)
+{
+	std::ifstream file(filepath);
+	if (!file.is_open())
+	{
+		throw std::runtime_error("Failed to open shader file: " + filepath);
+	}
+	std::stringstream buffer;
+	buffer << file.rdbuf();
+
+	return buffer.str();
+}
 
 class Shader
 {

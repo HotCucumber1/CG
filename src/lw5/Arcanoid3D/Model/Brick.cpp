@@ -28,6 +28,23 @@ bool Brick::CheckCollision(const Vector3f& ballPos, const float ballRadius, Vect
 	{
 		const auto distance = std::sqrt(distanceSquared);
 		outNormal = delta * (1 / distance);
+
+		const auto absX = std::abs(outNormal.x);
+		const auto absY = std::abs(outNormal.y);
+		const auto absZ = std::abs(outNormal.z);
+
+		if (absX > absY && absX > absZ)
+		{
+			outNormal = Vector3f(outNormal.x > 0 ? 1 : -1, 0, 0);
+		}
+		else if (absY > absX && absY > absZ)
+		{
+			outNormal = Vector3f(0, outNormal.y > 0 ? 1 : -1, 0.);
+		}
+		else
+		{
+			outNormal = Vector3f(0, 0, outNormal.z > 0 ? 1 : -1);
+		}
 		return true;
 	}
 	return false;

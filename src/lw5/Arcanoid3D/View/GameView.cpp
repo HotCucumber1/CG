@@ -19,8 +19,6 @@ constexpr auto BALL_RADIUS = 1;
 constexpr auto BALL_SEGMENTS = 32;
 constexpr auto BALL_RINGS = 16;
 
-std::string LoadShaderSource(const std::string& filepath);
-
 GameView::GameView(const int width, const int height, const char* title)
 	: BaseWindow(width, height, title)
 {
@@ -119,10 +117,11 @@ void GameView::RenderBall() const
 {
 	const auto ball = m_model.GetBall();
 	const auto ballPos = ball.GetPosition();
+	const float angle = ball.GetRotationAngle();
 
-	auto model = glm::translate(
-		glm::mat4(1),
-		glm::vec3(ballPos.x, ballPos.y, ballPos.z));
+	auto model = glm::mat4(1);
+	model = glm::translate(model, glm::vec3(ballPos.x, ballPos.y, ballPos.z));
+	model = glm::rotate(model, angle, glm::vec3(1, 0, 0));
 	model = glm::scale(model, glm::vec3(ball.GetRadius()));
 
 	__glewUniformMatrix4fv(m_modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -185,11 +184,10 @@ void GameView::RenderBricks() const
 void GameView::RenderBackground() const
 {
 	constexpr float backgroundShift = -5;
-	constexpr float bottomY = 0;
-	constexpr float centerY = bottomY + (GameModel::FIELD_HEIGHT / 2);
+	constexpr float centerY = GameModel::FIELD_HEIGHT / 2;
 
 	auto model = glm::translate(glm::mat4(1), glm::vec3(0, centerY, backgroundShift));
-	model = glm::scale(model, glm::vec3(GameModel::FIELD_WIDTH, GameModel::FIELD_HEIGHT, 1));
+	model = glm::scale(model, glm::vec3(GameModel::FIELD_WIDTH * 1.43, GameModel::FIELD_HEIGHT * 1.43, 1));
 	model = glm::rotate(model, glm::radians(90.f), glm::vec3(1, 0, 0));
 
 	__glewUniformMatrix4fv(m_modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -212,7 +210,7 @@ void GameView::SetProjectionAndView(const int width, const int height) const
 	constexpr float nearEdge = 0.1;
 	constexpr float farEdge = 100;
 
-	const auto aspectRatio = static_cast<float>(height) / static_cast<float>(width);
+	const auto aspectRatio = static_cast<float>(width) / static_cast<float>(height);
 	auto projection = glm::perspective(
 		FOV,
 		aspectRatio,
@@ -222,17 +220,4 @@ void GameView::SetProjectionAndView(const int width, const int height) const
 
 	__glewUniformMatrix4fv(m_projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 	__glewUniformMatrix4fv(m_viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-}
-
-std::string LoadShaderSource(const std::string& filepath)
-{
-	std::ifstream file(filepath);
-	if (!file.is_open())
-	{
-		throw std::runtime_error("Failed to open shader file: " + filepath);
-	}
-	std::stringstream buffer;
-	buffer << file.rdbuf();
-
-	return buffer.str();
 }

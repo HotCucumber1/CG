@@ -32,7 +32,7 @@ public:
 		return m_paddle;
 	}
 
-	const Level* GetCurrentLevel() const // TODO почему указатель?
+	const Level* GetCurrentLevel() const
 	{
 		return m_currentLevel.get();
 	}

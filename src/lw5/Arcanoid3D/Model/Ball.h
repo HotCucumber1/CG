@@ -34,6 +34,11 @@ public:
 		return m_velocity;
 	}
 
+	float GetRotationAngle() const
+	{
+		return m_rotationAngle;
+	}
+
 	void SetPosition(const Vector3f& pos)
 	{
 		m_position = pos;
@@ -47,6 +52,7 @@ public:
 private:
 	float m_radius;
 	float m_speed;
+	float m_rotationAngle = 0;
 	Vector3f m_position;
 	Vector3f m_velocity;
 };

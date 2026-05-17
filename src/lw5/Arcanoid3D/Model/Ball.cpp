@@ -1,6 +1,7 @@
 #include "Ball.h"
-
 #include "GameModel.h"
+
+#include <cmath>
 
 Ball::Ball(
 	const float radius,
@@ -20,6 +21,16 @@ bool Ball::Update(
 {
 	bool ballReflected = false;
 	m_position = m_position + m_velocity * deltaTime;
+
+	const Vector3f referenceDir(1, 0, 0);
+	const float distance = (m_velocity * deltaTime).GetLength();
+
+	const float direction = referenceDir.x * m_velocity.Normalized().y - referenceDir.y * m_velocity.Normalized().x;
+	const float sign = (direction >= 0)
+		? 1
+		: -1;
+	m_rotationAngle += (sign * distance) / m_radius;
+	m_rotationAngle = std::fmod(m_rotationAngle, 2 * static_cast<float>(M_PI));
 
 	constexpr float fieldLeft = -GameModel::FIELD_WIDTH / 2;
 	constexpr float fieldRight = GameModel::FIELD_WIDTH / 2;

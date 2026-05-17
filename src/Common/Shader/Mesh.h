@@ -272,13 +272,16 @@ inline Mesh CreateSphereMesh(
 		}
 	}
 
-	return { vertices, indices };
+	return {
+		vertices,
+		indices
+	};
 }
 
 inline Mesh CreatePlaneMesh(const float width, const float height)
 {
-	const auto halfW = width;
-	const auto halfH = height;
+	const auto halfW = width / 2;
+	const auto halfH = height / 2;
 
 	std::vector<Vertex> vertices = {
 		{ { -halfW, 0.0f, -halfH }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f } },
@@ -296,5 +299,8 @@ inline Mesh CreatePlaneMesh(const float width, const float height)
 		0,
 	};
 
-	return { vertices, indices };
+	return {
+		vertices,
+		indices
+	};
 }
