@@ -34,3 +34,4 @@ add_subdirectory(src/lw5/Arcanoid3D)
 
 add_subdirectory(src/lw7/ShaderLine)
 add_subdirectory(src/lw7/ShaderFlag)
+add_subdirectory(src/lw7/ShaderTransform)

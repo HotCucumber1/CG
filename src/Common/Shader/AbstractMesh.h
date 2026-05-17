@@ -18,6 +18,10 @@ public:
 private:
 	void CleanUp() const
 	{
+		if (m_ebo)
+		{
+			glDeleteBuffers(1, &m_ebo);
+		}
 		if (m_vbo)
 		{
 			glDeleteBuffers(1, &m_vbo);
@@ -31,5 +35,7 @@ private:
 protected:
 	GLuint m_vao = 0;
 	GLuint m_vbo = 0;
+	GLuint m_ebo = 0;
 	GLsizei m_vertexCount = 0;
+	GLsizei m_indexCount = 0;
 };
