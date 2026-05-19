@@ -27,7 +27,7 @@ bool IsInsideStar(vec2 p, vec2 center, float r, float angle)
     vec2 baseCoord = l * vec2(cos(f), sin(f));
 
     vec2 rA = vec2(r, 0.0);
-    vec2 rB = r * 0.38196 * vec2(0.809017, 0.587785); // cos(36°), sin(36°)
+    vec2 rB = r * 0.38196 * vec2(0.809017, 0.587785);
     float det = (baseCoord.x - rA.x) * (rB.y - rA.y) - (baseCoord.y - rA.y) * (rB.x - rA.x);
 
     return det < 0.0;
