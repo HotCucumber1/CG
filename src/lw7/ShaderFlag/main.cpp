@@ -7,7 +7,7 @@ int main()
 {
 	try {
 		GLFWInitializer initializer;
-		Window app(1000, 600, "USSR Flag");
+		Window app(1000, 600, "China Flag");
 
 		app.Run();
 	}

@@ -3,8 +3,12 @@ project(CG)
 
 set(CMAKE_CXX_STANDARD 20)
 
+set(OpenCL_LIBRARY "/usr/lib/x86_64-linux-gnu/libOpenCL.so.1")
+set(OpenCL_INCLUDE_DIR "/usr/include")
+
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
+find_package(OpenCL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(glfw3 REQUIRED)
 
@@ -36,3 +40,5 @@ add_subdirectory(src/lw7/ShaderLine)
 add_subdirectory(src/lw7/ShaderFlag)
 add_subdirectory(src/lw7/ShaderTransform)
 add_subdirectory(src/lw7/ShaderFractal)
+
+add_subdirectory(src/PP/lw9/Gravity)

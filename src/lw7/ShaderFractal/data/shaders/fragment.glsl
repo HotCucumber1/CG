@@ -6,6 +6,8 @@ uniform dvec2 uOffset;
 uniform double uZoom;
 uniform vec2 uResolution;
 
+// TODO почему zoom влияет на скорость обработки кадра при приближении (кадр медленнее приближается при большом zoom-е )
+
 void main()
 {
     double aspect = double(uResolution.x / uResolution.y);
@@ -21,9 +23,9 @@ void main()
 
     while (z.x * z.x + z.y * z.y <= 4.0 && iter < maxIterations)
     {
-        double x_temp = z.x * z.x - z.y * z.y + c.x;
+        double xTemp = z.x * z.x - z.y * z.y + c.x;
         z.y = 2.0 * z.x * z.y + c.y;
-        z.x = x_temp;
+        z.x = xTemp;
         iter++;
     }
 
@@ -33,9 +35,9 @@ void main()
         return;
     }
 
-    float log_zn = log(float(z.x * z.x + z.y * z.y)) / 2.0;
-    float nu = log(log_zn / log(2.0)) / log(2.0);
-    float t = (float(iter) + 1.0 - nu) / float(maxIterations);
+    float zLog = log(float(z.x * z.x + z.y * z.y)) / 2.0;
+    float tailPart = log(zLog / log(2.0)) / log(2.0);
+    float t = (float(iter) + 1.0 - tailPart) / float(maxIterations);
 
     vec3 color;
     color.r = 0.5 + 0.5 * cos(3.0 + t * 20.0 + 0.0);

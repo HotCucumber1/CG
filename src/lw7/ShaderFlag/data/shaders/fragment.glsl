@@ -28,7 +28,7 @@ bool IsInsideStar(vec2 p, vec2 center, float r, float angle)
 
     vec2 rA = vec2(r, 0.0);
     vec2 rB = r * 0.38196 * vec2(0.809017, 0.587785);
-    float det = (baseCoord.x - rA.x) * (rB.y - rA.y) - (baseCoord.y - rA.y) * (rB.x - rA.x);
+    float det = (baseCoord.x - rA.x) * (rB.y - rA.y) - (baseCoord.y - rA.y) * (rB.x - rA.x); // TODO разобраться, формула чего
 
     return det < 0.0;
 }
@@ -43,8 +43,8 @@ void main()
     {
         float s = flagAspect / windowAspect;
         uv.x = (uv.x - 0.5) / s + 0.5;
-    } 
-    else 
+    }
+    else
     {
         float s = windowAspect / flagAspect;
         uv.y = (uv.y - 0.5) / s + 0.5;
@@ -94,6 +94,5 @@ void main()
     {
         finalColor = goldColor;
     }
-
     FragColor = vec4(finalColor, 1.0);
 }

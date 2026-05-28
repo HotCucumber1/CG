@@ -3,6 +3,8 @@ layout (location = 0) in vec3 aPos;
 
 uniform mat4 uProjection;
 
+out float vAngle;
+
 void main()
 {
     float x = aPos.x;
@@ -16,4 +18,6 @@ void main()
     float polarZ = aPos.z;
 
     gl_Position = uProjection * vec4(polarX, polarY, polarZ, 1.0);
+
+    vAngle = x;
 }

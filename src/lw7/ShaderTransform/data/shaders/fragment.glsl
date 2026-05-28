@@ -18,7 +18,5 @@ void main()
     float diff = abs(dot(norm, lightDir));
     vec3 diffuse = diff * diffuseColor;
 
-    vec3 finalColor = ambientColor + diffuse;
-
-    FragColor = vec4(finalColor, 1.0);
+    FragColor = vec4(ambientColor + diffuse, 1.0);
 }
