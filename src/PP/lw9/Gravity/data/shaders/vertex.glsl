@@ -4,6 +4,7 @@ layout(location = 1) in float mass;
 
 uniform mat4 modelViewProjection;
 uniform float pointSize;
+uniform vec3 cameraPos;
 
 void main()
 {

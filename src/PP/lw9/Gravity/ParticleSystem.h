@@ -23,17 +23,16 @@ public:
 
 	void Render() const;
 
-	void AddParticle(const glm::vec3& position, float mass);
-
 	int GetParticleCount() const
 	{
 		return m_numParticles;
 	}
 
-	void SetGravitationalConstant(float G)
+	void SetGravitationalConstant(const float G)
 	{
 		m_G = G;
 	}
+
 	void SetTimeScale(const float scale)
 	{
 		m_timeScale = scale;
@@ -49,13 +48,13 @@ public:
 	}
 
 private:
+	static constexpr int MAX_PARTICLES = 100000;
 	void SetupOpenCL();
 	void SetupOpenGLBuffers();
 	void CreateTexture();
 
 	std::vector<Particle> m_particles;
 	int m_numParticles;
-	int m_maxParticles = 100000;
 	float m_G;
 	float m_timeScale;
 
@@ -63,7 +62,8 @@ private:
 	cl::CommandQueue m_queue;
 	cl::Program m_program;
 	cl::Kernel m_kernel;
-	cl::Buffer m_particleBufferCL;
+	cl::Buffer m_particleBufferCLIn;
+	cl::Buffer m_particleBufferCLOut;
 
 	GLuint m_particleBufferGL{};
 	GLuint m_textureID{};

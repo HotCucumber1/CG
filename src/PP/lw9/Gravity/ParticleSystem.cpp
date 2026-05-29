@@ -4,11 +4,10 @@
 #include <iostream>
 #include <random>
 
-// TODO нейминг и жестко разобраться во всем
-
 const auto kernelSource = R"(
 __kernel void updateParticles(
-    __global float4* particles,
+    __global float4* particlesIn,
+    __global float4* particlesOut,
     const float deltaTime,
     const float G,
     const int numParticles,
@@ -20,11 +19,11 @@ __kernel void updateParticles(
 		return;
 	}
 
-    float4 pos_i = particles[i * 2];
-    float4 vel_i = particles[i * 2 + 1];
+    float4 pos_i = particlesIn[i * 2];
+    float4 vel_i = particlesIn[i * 2 + 1];
     float mass_i = pos_i.w;
 
-    float4 force = (float4)(0.0f, 0.0f, 0.0f, 0.0f);
+    float4 force = (float4)(0, 0, 0, 0);
 
     for (int j = 0; j < numParticles; j++)
 	{
@@ -33,7 +32,7 @@ __kernel void updateParticles(
 			continue;
 		}
 
-        float4 pos_j = particles[j * 2];
+        float4 pos_j = particlesIn[j * 2];
         float mass_j = pos_j.w;
 
         float4 diff = pos_j - pos_i;
@@ -52,8 +51,8 @@ __kernel void updateParticles(
     vel_i += acceleration * deltaTime;
     pos_i += vel_i * deltaTime;
 
-    particles[i * 2] = pos_i;
-    particles[i * 2 + 1] = vel_i;
+    particlesOut[i * 2] = pos_i;
+    particlesOut[i * 2 + 1] = vel_i;
 })";
 
 ParticleSystem::ParticleSystem(const int numParticles, const float G, const float timeScale)
@@ -61,7 +60,7 @@ ParticleSystem::ParticleSystem(const int numParticles, const float G, const floa
 	, m_G(G)
 	, m_timeScale(timeScale)
 {
-	m_particles.resize(m_maxParticles);
+	m_particles.resize(MAX_PARTICLES);
 	SetupOpenCL();
 	SetupOpenGLBuffers();
 	CreateTexture();
@@ -81,24 +80,24 @@ void ParticleSystem::InitializeRandom(
 	const float velScale)
 {
 	static std::mt19937 rng(std::random_device{}());
-	std::uniform_real_distribution dist01(0.0f, 1.0f);
+	std::uniform_real_distribution dist(0.0f, 1.0f);
 	std::uniform_real_distribution distSym(-1.0f, 1.0f);
 
 	for (int i = 0; i < m_numParticles; i++)
 	{
-		const auto theta = 2 * M_PI * dist01(rng);
-		const auto phi = std::acos(2.0f * dist01(rng) - 1.0f);
-		const auto r = radius * std::pow(dist01(rng), 1.0f / 3.0f);
+		const auto theta = 2 * M_PI * dist(rng);
+		const auto phi = std::acos(2.0f * dist(rng) - 1.0f);
+		const auto r = radius * std::pow(dist(rng), 1 / 3.f);
 
 		m_particles[i].position.x = r * std::sin(phi) * std::cos(theta);
 		m_particles[i].position.y = r * std::sin(phi) * std::sin(theta);
 		m_particles[i].position.z = r * std::cos(phi);
-		m_particles[i].position.w = 0.5f + dist01(rng) * maxMass;
+		m_particles[i].position.w = 0.5 + dist(rng) * maxMass;
 
 		m_particles[i].velocity.x = distSym(rng) * velScale;
 		m_particles[i].velocity.y = distSym(rng) * velScale;
 		m_particles[i].velocity.z = distSym(rng) * velScale;
-		m_particles[i].velocity.w = 0.0f;
+		m_particles[i].velocity.w = 0;
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_particleBufferGL);
@@ -114,16 +113,17 @@ void ParticleSystem::Update(float deltaTime)
 		glGetBufferSubData(GL_ARRAY_BUFFER, 0, m_numParticles * sizeof(Particle), m_particles.data());
 
 		m_queue.enqueueWriteBuffer(
-			m_particleBufferCL,
+			m_particleBufferCLIn,
 			CL_TRUE, 0,
 			m_numParticles * sizeof(Particle),
 			m_particles.data());
 
-		m_kernel.setArg(0, m_particleBufferCL);
-		m_kernel.setArg(1, deltaTime);
-		m_kernel.setArg(2, m_G);
-		m_kernel.setArg(3, m_numParticles);
-		m_kernel.setArg(4, 0.1f);
+		m_kernel.setArg(0, m_particleBufferCLIn);
+		m_kernel.setArg(1, m_particleBufferCLOut);
+		m_kernel.setArg(2, deltaTime);
+		m_kernel.setArg(3, m_G);
+		m_kernel.setArg(4, m_numParticles);
+		m_kernel.setArg(5, 0.1);
 
 		m_queue.enqueueNDRangeKernel(
 			m_kernel,
@@ -132,13 +132,14 @@ void ParticleSystem::Update(float deltaTime)
 			cl::NullRange);
 
 		m_queue.enqueueReadBuffer(
-			m_particleBufferCL,
+			m_particleBufferCLOut,
 			CL_TRUE, 0,
 			m_numParticles * sizeof(Particle),
 			m_particles.data());
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_particleBufferGL);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, m_numParticles * sizeof(Particle), m_particles.data());
+		std::swap(m_particleBufferCLIn, m_particleBufferCLOut);
 	}
 	catch (const std::exception& e)
 	{
@@ -159,32 +160,15 @@ void ParticleSystem::Render() const
 	glBufferSubData(GL_ARRAY_BUFFER, 0, m_numParticles * sizeof(glm::vec4), positions.data());
 
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_ONE, GL_ONE);
+	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_POINT_SPRITE);
 	glEnable(GL_PROGRAM_POINT_SIZE);
-	glEnable(GL_TEXTURE_2D);
-
-	glBindTexture(GL_TEXTURE_2D, m_textureID);
 	glDrawArrays(GL_POINTS, 0, m_numParticles);
 
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 	glBindVertexArray(0);
-}
-
-void ParticleSystem::AddParticle(const glm::vec3& position, float mass)
-{
-	if (m_numParticles >= m_maxParticles)
-	{
-		return;
-	}
-
-	m_particles[m_numParticles].position = glm::vec4(position, mass);
-	m_particles[m_numParticles].velocity = glm::vec4(0, 0, 0, 0);
-	m_numParticles++;
-
-	glBindBuffer(GL_ARRAY_BUFFER, m_particleBufferGL);
-	glBufferSubData(GL_ARRAY_BUFFER, (m_numParticles - 1) * sizeof(Particle), sizeof(Particle), &m_particles[m_numParticles - 1]);
 }
 
 void ParticleSystem::SetupOpenCL()
@@ -231,9 +215,9 @@ void ParticleSystem::SetupOpenGLBuffers()
 {
 	glGenBuffers(1, &m_particleBufferGL);
 	glBindBuffer(GL_ARRAY_BUFFER, m_particleBufferGL);
-	glBufferData(GL_ARRAY_BUFFER, m_maxParticles * 2 * sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * 2 * sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
 
-	for (int i = 0; i < m_maxParticles; i++)
+	for (int i = 0; i < MAX_PARTICLES; i++)
 	{
 		m_particles[i].position = glm::vec4(0, 0, 0, 1.0f);
 		m_particles[i].velocity = glm::vec4(0, 0, 0, 0);
@@ -241,8 +225,16 @@ void ParticleSystem::SetupOpenGLBuffers()
 
 	glBufferSubData(GL_ARRAY_BUFFER, 0, m_numParticles * sizeof(Particle), m_particles.data());
 
-	m_particleBufferCL = cl::Buffer(m_context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
-		m_numParticles * sizeof(Particle), m_particles.data());
+	m_particleBufferCLIn = cl::Buffer(
+		m_context,
+		CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+		MAX_PARTICLES * sizeof(Particle),
+		m_particles.data());
+
+	m_particleBufferCLOut = cl::Buffer(
+		m_context,
+		CL_MEM_READ_WRITE,
+		MAX_PARTICLES * sizeof(Particle));
 
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
@@ -262,36 +254,23 @@ void ParticleSystem::SetupOpenGLBuffers()
 
 void ParticleSystem::CreateTexture()
 {
+	static constexpr int color = 25;
+	;
+	static constexpr int size = 16;
+
 	glGenTextures(1, &m_textureID);
 	glBindTexture(GL_TEXTURE_2D, m_textureID);
 
-	unsigned char textureData[16 * 16 * 4];
-	for (int i = 0; i < 16 * 16; i++)
+	unsigned char textureData[size * size * 4];
+	for (int i = 0; i < size * size; i++)
 	{
-		const int x = i % 16;
-		const int y = i / 16;
-		const float dx = (x - 7.5f) / 7.5f;
-		const float dy = (y - 7.5f) / 7.5f;
-		const float dist = sqrt(dx * dx + dy * dy);
-
-		if (dist < 1.0f)
-		{
-			float alpha = (1.0f - dist) * 255;
-			textureData[i * 4 + 0] = 255;
-			textureData[i * 4 + 1] = 200;
-			textureData[i * 4 + 2] = 100;
-			textureData[i * 4 + 3] = alpha;
-		}
-		else
-		{
-			textureData[i * 4 + 0] = 0;
-			textureData[i * 4 + 1] = 0;
-			textureData[i * 4 + 2] = 0;
-			textureData[i * 4 + 3] = 0;
-		}
+		textureData[i * 4 + 0] = color;
+		textureData[i * 4 + 1] = color;
+		textureData[i * 4 + 2] = color;
+		textureData[i * 4 + 3] = color;
 	}
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 16, 16, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }

@@ -41,4 +41,6 @@ add_subdirectory(src/lw7/ShaderFlag)
 add_subdirectory(src/lw7/ShaderTransform)
 add_subdirectory(src/lw7/ShaderFractal)
 
+add_subdirectory(src/lw8/Light)
+
 add_subdirectory(src/PP/lw9/Gravity)

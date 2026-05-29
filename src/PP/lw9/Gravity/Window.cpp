@@ -12,7 +12,7 @@ constexpr float PARTICLE_RADIUS = 7;
 constexpr float PARTICLE_MASS = 2;
 constexpr float PARTICLE_SCALE = 0.2;
 
-constexpr int NUM_PART = 20000;
+constexpr int NUM_PART = 10;
 constexpr float START_G = 0.05;
 constexpr int TIME_SCALE = 1;
 

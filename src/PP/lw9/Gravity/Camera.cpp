@@ -2,15 +2,6 @@
 #include <GLFW/glfw3.h>
 
 Camera::Camera()
-	: m_position(0.0f, 0.0f, 20.0f)
-	, m_front(0.0f, 0.0f, -1.0f)
-	, m_up(0.0f, 1.0f, 0.0f)
-	, m_worldUp(0.0f, 1.0f, 0.0f)
-	, m_yaw(-90.0f)
-	, m_pitch(0.0f)
-	, m_mouseSensitivity(0.1f)
-	, m_movementSpeed(15.0f)
-	, m_zoom(45.0f)
 {
 	UpdateCameraVectors();
 }
@@ -39,6 +30,7 @@ glm::mat4 Camera::GetProjectionMatrix(const float aspectRatio) const
 
 void Camera::ProcessMouseMovement(float xOffset, float yOffset, const bool constrainPitch)
 {
+	static constexpr float pitchMax = 89;
 	xOffset *= m_mouseSensitivity;
 	yOffset *= m_mouseSensitivity;
 
@@ -47,13 +39,13 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, const bool const
 
 	if (constrainPitch)
 	{
-		if (m_pitch > 89.0f)
+		if (m_pitch > pitchMax)
 		{
-			m_pitch = 89.0f;
+			m_pitch = pitchMax;
 		}
-		if (m_pitch < -89.0f)
+		if (m_pitch < -pitchMax)
 		{
-			m_pitch = -89.0f;
+			m_pitch = -pitchMax;
 		}
 	}
 	UpdateCameraVectors();
@@ -61,14 +53,15 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, const bool const
 
 void Camera::ProcessMouseScroll(float yOffset)
 {
+	static constexpr float zoomMin = 1;
 	m_zoom -= yOffset;
-	if (m_zoom < 1.0f)
+	if (m_zoom < zoomMin)
 	{
-		m_zoom = 1.0f;
+		m_zoom = zoomMin;
 	}
-	if (m_zoom > 89.0f)
+	if (m_zoom > 90 - zoomMin)
 	{
-		m_zoom = 89.0f;
+		m_zoom = 90 - zoomMin;
 	}
 }
 
