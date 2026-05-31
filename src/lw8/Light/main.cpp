@@ -8,7 +8,7 @@ int main()
 	try
 	{
 		GLFWInitializer initializer;
-		Window app(400, 300, "Ray");
+		Window app(700, 700, "Ray");
 		app.Run();
 	}
 	catch (const std::exception& e)

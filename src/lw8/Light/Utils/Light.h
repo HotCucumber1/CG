@@ -20,8 +20,7 @@ struct Light
 	{
 	}
 
-	// TODO нейминг
-	Vector3 randomPointOnSurface(std::mt19937& rng) const
+	Vector3 RandomPointOnSurface(std::mt19937& rng) const
 	{
 		if (radius <= 0)
 		{

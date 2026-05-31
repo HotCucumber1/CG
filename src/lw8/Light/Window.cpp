@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-Window::Window(int width, int height, const char* title)
+Window::Window(const int width, const int height, const char* title)
 	: BaseWindow(width, height, title)
 	, m_rayTracer(width, height)
 	, m_winWidth(width)
@@ -21,7 +21,7 @@ Window::Window(int width, int height, const char* title)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	m_pixels = new unsigned char[width * height * 3]; // TODO чзк, убрать нахой
+	m_pixels.resize(width * height * 3);
 
 	constexpr float vertices[] = {
 		-1.0f, 1.0f, 0.0f, 1.0f,
@@ -59,34 +59,35 @@ Window::Window(int width, int height, const char* title)
 
 Window::~Window()
 {
-	delete[] m_pixels;
 	glDeleteTextures(1, &m_texture);
 	glDeleteVertexArrays(1, &m_vao);
 	glDeleteBuffers(1, &m_vbo);
 }
 
-// TODO в константу
 void Window::InitScene()
 {
 	const Light radiusLight(
-		Vector3(3.0f, 4.0f, 2.0f),
+		Vector3(0.0f, 4.0f, -1.0f),
 		Color(1.0f, 1.0f, 1.0f),
 		Color(1.0f, 1.0f, 1.0f),
 		Color(0.2f, 0.2f, 0.2f),
 		m_lightRadius);
 	m_rayTracer.AddLight(radiusLight);
 
-	const Material redMaterial(Color(0.8f, 0.2f, 0.2f),
+	const Material redMaterial(
+		Color(0.8f, 0.2f, 0.2f),
 		Color(1.0f, 1.0f, 1.0f),
 		Color(0.2f, 0.05f, 0.05f),
 		32.0f);
 
-	const Material blueMaterial(Color(0.2f, 0.3f, 0.8f),
+	const Material blueMaterial(
+		Color(0.2f, 0.3f, 0.8f),
 		Color(1.0f, 1.0f, 1.0f),
 		Color(0.05f, 0.05f, 0.2f),
 		64.0f);
 
-	const Material greenMaterial(Color(0.2f, 0.8f, 0.2f),
+	const Material greenMaterial(
+		Color(0.2f, 0.8f, 0.2f),
 		Color(0.8f, 0.8f, 0.8f),
 		Color(0.05f, 0.2f, 0.05f),
 		16.0f);
@@ -104,7 +105,7 @@ void Window::InitScene()
 		Sphere(Vector3(0.0f, -200.0f, 0.0f), 190.0f, floorMaterial));
 
 	m_rayTracer.SetCamera(
-		Vector3(0, 5, 4),
+		Vector3(0, 3, 4),
 		Vector3(0, 0, 0),
 		Vector3(0, 1, 0),
 		60);
@@ -112,19 +113,19 @@ void Window::InitScene()
 
 	m_rayTracer.Render(m_pixels);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_winWidth, m_winHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, m_pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_winWidth, m_winHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, m_pixels.data());
 }
 
 void Window::UpdateTexture() const
 {
 	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_winWidth, m_winHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, m_pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_winWidth, m_winHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, m_pixels.data());
 }
 
 void Window::UpdateRayTracerSettings()
 {
-	m_rayTracer.setSoftShadowsEnabled(m_softShadows);
-	m_rayTracer.setLightSamplesCount(m_samples);
+	m_rayTracer.SetSoftShadowsEnabled(m_softShadows);
+	m_rayTracer.SetLightSamplesCount(m_samples);
 
 	m_rayTracer.ClearLights();
 	const Light light(

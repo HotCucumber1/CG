@@ -10,7 +10,6 @@ add_executable(
         ../../Common/GLFWInitializer/GLFWInitializer.cpp
         ../../Common/BaseWindow/BaseWindow.cpp
         RayTracer.cpp
-        Utils/Torus.cpp
         Window.cpp
         main.cpp
 )

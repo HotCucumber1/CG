@@ -2,7 +2,6 @@
 #include "Utils/Light.h"
 #include "Utils/Ray.h"
 #include "Utils/Sphere.h"
-#include "Utils/Torus.h"
 
 #include <chrono>
 #include <vector>
@@ -16,30 +15,23 @@ public:
 
 	void AddLight(const Light& light);
 
-	void Render(unsigned char* pixels) const;
+	void Render(std::vector<unsigned char>& pixels) const;
 
 	void SetCamera(const Vector3& pos, const Vector3& lookAt, const Vector3& up, float fov);
 
 	void SetBackground(const Color& bg);
 
-	void setSoftShadowsEnabled(const bool enable)
-	{
-		m_softShadowsEnabled = enable;
-	}
+	void SetSoftShadowsEnabled(bool enable);
 
-	void setLightSamplesCount(const int count)
+	void SetLightSamplesCount(const int count)
 	{
 		m_lightSamplesCount = std::max(1, count);
 	}
-
-	void setLightRadius(float radius);
 
 	void ClearLights()
 	{
 		m_lights.clear();
 	}
-
-	void addTorus(const Torus& torus);
 
 private:
 	bool Intersect(const Ray& ray, float& t, Sphere*& hitSphere, Vector3& hitNormal) const;
@@ -48,11 +40,9 @@ private:
 
 	Color ComputeLighting(const Vector3& point, const Vector3& normal, const Vector3& viewDir, const Material& material) const;
 
-	bool isInShadow(const Vector3& point, const Vector3& normal, const Light& light) const;
+	bool IsInShadow(const Vector3& point, const Vector3& normal, const Light& light) const;
 
-	float shadowFactor(const Vector3& point, const Vector3& normal, const Light& light) const;
-
-	bool intersectAll(const Ray& ray, float& t, Material*& material, Vector3& normal) const;
+	float ShadowFactor(const Vector3& point, const Vector3& normal, const Light& light) const;
 
 private:
 	int m_width;
@@ -70,6 +60,4 @@ private:
 	bool m_softShadowsEnabled = false;
 	int m_lightSamplesCount = 16;
 	mutable std::mt19937 m_rng;
-
-	std::vector<Torus> m_tori;
 };

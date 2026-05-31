@@ -26,7 +26,7 @@ private:
 	unsigned int m_texture{};
 	unsigned int m_vao{};
 	unsigned int m_vbo{};
-	unsigned char* m_pixels;
+	std::vector<unsigned char> m_pixels;
 	int m_winWidth;
 	int m_winHeight;
 
