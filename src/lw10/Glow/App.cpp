@@ -28,7 +28,7 @@ GlowApp::GlowApp(const int w, const int h, const char* title)
 
 void GlowApp::InitFBOs(const int w, const int h)
 {
-	constexpr int LIGHT_BRIGHTNESS = 10;
+	constexpr int LIGHT_BRIGHTNESS = 2;
 	lastWidth = w;
 	lastHeight = h;
 	int auxW = w / LIGHT_BRIGHTNESS;
@@ -163,7 +163,7 @@ bool GlowApp::RenderGaussianBlur() const
 
 void GlowApp::RenderLightMotionBlur(const bool horizontal)
 {
-	constexpr float decay = 0.95;
+	constexpr float decay = 0.85;
 	const int nextMotionIndex = (m_currentMotionIndex + 1) % 2;
 	m_motionBlurFBO[nextMotionIndex]->Bind();
 	__glewUseProgram(m_motionShader);

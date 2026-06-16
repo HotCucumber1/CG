@@ -21,11 +21,11 @@ inline Sphere GetSphere()
 	{
 		for (unsigned int y = 0; y <= Y_SEGMENTS; ++y)
 		{
-			const float xSegment = static_cast<float>(x) / X_SEGMENTS;
-			const float ySegment = static_cast<float>(y) / Y_SEGMENTS;
-			const float xPos = std::cos(xSegment * 2 * M_PI) * std::sin(ySegment * M_PI);
-			const float yPos = std::cos(ySegment * M_PI);
-			const float zPos = std::sin(xSegment * 2 * M_PI) * std::sin(ySegment * M_PI);
+			const auto xSegment = static_cast<float>(x) / X_SEGMENTS;
+			const auto ySegment = static_cast<float>(y) / Y_SEGMENTS;
+			const auto xPos = std::cos(xSegment * 2 * M_PI) * std::sin(ySegment * M_PI);
+			const auto yPos = std::cos(ySegment * M_PI);
+			const auto zPos = std::sin(xSegment * 2 * M_PI) * std::sin(ySegment * M_PI);
 
 			sphere.positions.emplace_back(xPos, yPos, zPos);
 			sphere.normals.emplace_back(xPos, yPos, zPos);
