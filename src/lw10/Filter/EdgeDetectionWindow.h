@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Common/Shader/Program.h"
-#include "../Common/BaseWindow/BaseWindow.h"
+#include "../../Common/BaseWindow/BaseWindow.h"
+#include "../../Common/Shader/Program.h"
 
 #include <GL/glew.h>
 

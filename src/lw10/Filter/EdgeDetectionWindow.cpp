@@ -1,4 +1,4 @@
-#include "EdgeDetectionWindow.h"
+#include "../EdgeDetectionWindow.h"
 #include <cmath>
 #include <iostream>
 #include <stb_image.h>

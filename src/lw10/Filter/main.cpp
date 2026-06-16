@@ -1,4 +1,4 @@
-#include "../Common/GLFWInitializer/GLFWInitializer.h"
+#include "../../Common/GLFWInitializer/GLFWInitializer.h"
 #include "EdgeDetectionWindow.h"
 
 #include <iostream>

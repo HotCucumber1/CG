@@ -1,12 +1,12 @@
 file(
-        COPY ${CMAKE_CURRENT_SOURCE_DIR}/data/
+        COPY ${CMAKE_CURRENT_SOURCE_DIR}/data
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data/
 )
 
 add_executable(Filter
-        ../Common/StbImpl.cpp
-        ../Common/GLFWInitializer/GLFWInitializer.cpp
-        ../Common/BaseWindow/BaseWindow.cpp
+        ../../Common/StbImpl.cpp
+        ../../Common/GLFWInitializer/GLFWInitializer.cpp
+        ../../Common/BaseWindow/BaseWindow.cpp
         EdgeDetectionWindow.cpp
         main.cpp)
 
