@@ -28,18 +28,19 @@ GlowApp::GlowApp(const int w, const int h, const char* title)
 
 void GlowApp::InitFBOs(const int w, const int h)
 {
+	constexpr int LIGHT_BRIGHTNESS = 10;
 	lastWidth = w;
 	lastHeight = h;
-	int auxW = w / 2;
-	int auxH = h / 2;
+	int auxW = w / LIGHT_BRIGHTNESS;
+	int auxH = h / LIGHT_BRIGHTNESS;
 
-	m_auxFBO = std::make_unique<RenderTarget>(auxW, auxH, true);
+	m_glowingMaskFBO = std::make_unique<RenderTarget>(auxW, auxH);
 	for (int i = 0; i < 2; i++)
 	{
-		m_pingpongFBO[i] = std::make_unique<RenderTarget>(auxW, auxH, false);
-		m_motionFBO[i] = std::make_unique<RenderTarget>(auxW, auxH, false);
+		m_doubleBlurFBO[i] = std::make_unique<RenderTarget>(auxW, auxH);
+		m_motionBlurFBO[i] = std::make_unique<RenderTarget>(auxW, auxH);
 
-		m_motionFBO[i]->Bind();
+		m_motionBlurFBO[i]->Bind();
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
@@ -49,9 +50,10 @@ void GlowApp::InitFBOs(const int w, const int h)
 void GlowApp::DrawScene(const Program& shader, const bool renderMask)
 {
 	auto projection = glm::perspective(
-		glm::radians(45.0f),
+		glm::radians(45.f),
 		static_cast<float>(lastWidth) / lastHeight,
-		0.1f, 100.0f);
+		0.1f,
+		100.f);
 
 	const float camX = std::sin(m_cameraAngleX) * std::cos(m_cameraAngleY) * m_radius;
 	const float camY = std::sin(m_cameraAngleY) * m_radius;
@@ -77,66 +79,23 @@ void GlowApp::Draw(const int width, const int height)
 		InitFBOs(width, height);
 	}
 
-	// --- Шаг 1: Рендер обычной сцены в основной буфер ---
-	__glewBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, width, height);
-	glClearColor(0.05f, 0.05f, 0.1f, 1.0f); // Темный космос
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	DrawScene(m_sceneShader, false);
+	RenderScene(width, height);
+	RenderGlowMask();
+	const auto horizontal = RenderGaussianBlur();
+	RenderLightMotionBlur(horizontal);
 
-	// --- Шаг 2: Рендер Glow Маски (светящиеся - цвет, остальные - черные) ---
-	m_auxFBO->Bind();
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	DrawScene(m_sceneShader, true);
-
-	// --- Шаг 3: Размытие (Gaussian Blur) ---
-	glDisable(GL_DEPTH_TEST);
-	bool horizontal = true, first_iteration = true;
-	int amount = 10; // Количество проходов размытия (сильное размытие)
-	__glewUseProgram(m_blurShader);
-	for (unsigned int i = 0; i < amount; i++)
-	{
-		m_pingpongFBO[horizontal]->Bind();
-		__glewUniform1i(__glewGetUniformLocation(m_blurShader, "horizontal"), horizontal);
-		glBindTexture(GL_TEXTURE_2D, first_iteration ? m_auxFBO->GetTexture() : m_pingpongFBO[!horizontal]->GetTexture());
-		m_screenQuad->Draw();
-		horizontal = !horizontal;
-		first_iteration = false;
-	}
-
-	// --- Шаг 4: Light Motion Blur (Бонус 50 баллов) ---
-	int nextMotionIndex = (m_currentMotionIndex + 1) % 2;
-	m_motionFBO[nextMotionIndex]->Bind();
-	__glewUseProgram(m_motionShader);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_pingpongFBO[!horizontal]->GetTexture()); // Текущее размытие
-	__glewUniform1i(__glewGetUniformLocation(m_motionShader, "currentGlow"), 0);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, m_motionFBO[m_currentMotionIndex]->GetTexture()); // Размытие предыдущего кадра
-	__glewUniform1i(__glewGetUniformLocation(m_motionShader, "previousGlow"), 1);
-
-	__glewUniform1f(__glewGetUniformLocation(m_motionShader, "decay"), 0.85f); // Коэффициент затухания инерции
-
-	m_screenQuad->Draw();
-	m_currentMotionIndex = nextMotionIndex; // Обновляем индекс для следующего кадра
-
-	// --- Шаг 5: Композитинг на главный экран ---
 	__glewBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, width, height);
 
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE); // Аддитивное смешивание
+	glBlendFunc(GL_ONE, GL_ONE);
 
 	__glewUseProgram(m_finalShader);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_motionFBO[m_currentMotionIndex]->GetTexture()); // Накладываем накопленный моушн-блюр
+	glBindTexture(GL_TEXTURE_2D, m_motionBlurFBO[m_currentMotionIndex]->GetTexture());
 	__glewUniform1i(__glewGetUniformLocation(m_finalShader, "glowTexture"), 0);
 
 	m_screenQuad->Draw();
-
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 }
@@ -161,6 +120,68 @@ void GlowApp::OnCursorPos(const double x, const double y)
 	m_lastMouseY = y;
 }
 
+void GlowApp::RenderScene(const int width, const int height)
+{
+	__glewBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, width, height);
+	glClearColor(0.05, 0.05, 0.1, 1);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	DrawScene(m_sceneShader, false);
+}
+
+void GlowApp::RenderGlowMask()
+{
+	m_glowingMaskFBO->Bind();
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	DrawScene(m_sceneShader, true);
+}
+
+bool GlowApp::RenderGaussianBlur() const
+{
+	constexpr int amount = 10;
+
+	glDisable(GL_DEPTH_TEST);
+	bool horizontal = true;
+	bool firstIteration = true;
+	__glewUseProgram(m_blurShader);
+	for (unsigned int i = 0; i < amount; i++)
+	{
+		m_doubleBlurFBO[horizontal]->Bind();
+		__glewUniform1i(__glewGetUniformLocation(m_blurShader, "horizontal"), horizontal);
+		glBindTexture(
+			GL_TEXTURE_2D,
+			firstIteration
+				? m_glowingMaskFBO->GetTexture()
+				: m_doubleBlurFBO[!horizontal]->GetTexture());
+		m_screenQuad->Draw();
+		horizontal = !horizontal;
+		firstIteration = false;
+	}
+	return horizontal;
+}
+
+void GlowApp::RenderLightMotionBlur(const bool horizontal)
+{
+	constexpr float decay = 0.95;
+	const int nextMotionIndex = (m_currentMotionIndex + 1) % 2;
+	m_motionBlurFBO[nextMotionIndex]->Bind();
+	__glewUseProgram(m_motionShader);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_doubleBlurFBO[!horizontal]->GetTexture());
+	__glewUniform1i(__glewGetUniformLocation(m_motionShader, "currentGlow"), 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_motionBlurFBO[m_currentMotionIndex]->GetTexture());
+	__glewUniform1i(__glewGetUniformLocation(m_motionShader, "previousGlow"), 1);
+
+	__glewUniform1f(__glewGetUniformLocation(m_motionShader, "decay"), decay);
+
+	m_screenQuad->Draw();
+	m_currentMotionIndex = nextMotionIndex;
+}
+
 void GlowApp::DrawSun(const Program& shader)
 {
 	auto model = glm::mat4(1);
@@ -182,6 +203,12 @@ void GlowApp::DrawEarth(const Program& shader)
 	__glewUniformMatrix4fv(__glewGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
 	__glewUniform3f(__glewGetUniformLocation(shader, "objectColor"), 0.2, 0.4, 0.8);
 	__glewUniform1i(__glewGetUniformLocation(shader, "isGlowing"), 0);
+
+	__glewUniformMatrix4fv(__glewGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	__glewUniform3f(__glewGetUniformLocation(shader, "objectColor"), 0.0, 1.0, 0.8);
+	__glewUniform1i(__glewGetUniformLocation(shader, "isGlowing"), 1);
+
+	DrawSphere();
 	DrawSphere();
 }
 

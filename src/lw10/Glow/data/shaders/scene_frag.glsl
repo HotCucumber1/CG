@@ -11,7 +11,9 @@ uniform bool renderMask;
 
 void main() {
     if (renderMask) {
-        FragColor = isGlowing ? vec4(objectColor, 1.0) : vec4(0.0, 0.0, 0.0, 1.0);
+        FragColor = isGlowing
+            ? vec4(objectColor, 1.0)
+            : vec4(0.0, 0.0, 0.0, 1.0);
     } else {
         if (isGlowing) {
             FragColor = vec4(objectColor, 1.0);
