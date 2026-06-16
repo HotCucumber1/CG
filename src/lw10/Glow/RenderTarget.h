@@ -9,6 +9,8 @@ public:
 		: m_width(w)
 		, m_height(h)
 	{
+		constexpr float borderColor[] = { 0, 0, 0, 1 };
+
 		__glewGenFramebuffers(1, &m_fbo);
 		__glewBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 
@@ -20,7 +22,6 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		constexpr float borderColor[] = { 0, 0, 0, 1 };
 		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
 		__glewFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture, 0);

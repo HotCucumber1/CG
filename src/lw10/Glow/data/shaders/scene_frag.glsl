@@ -9,7 +9,8 @@ uniform vec3 objectColor;
 uniform bool isGlowing;
 uniform bool renderMask;
 
-void main() {
+void main()
+{
     if (renderMask) {
         FragColor = isGlowing
             ? vec4(objectColor, 1.0)
